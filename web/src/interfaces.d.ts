@@ -1,5 +1,5 @@
 export interface DeviceState {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   mac: string;

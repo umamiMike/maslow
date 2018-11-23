@@ -1,3 +1,5 @@
+import { DeviceState } from "../interfaces";
+
 const initState = {
   devices: [
     {
@@ -15,7 +17,16 @@ const initState = {
   ]
 };
 
-const systemReducer = (state = initState, action = {}) => {
+interface Action {
+  type: string;
+  device?: DeviceState;
+}
+
+const systemReducer = (state = initState, action: Action) => {
+  switch (action.type) {
+    case "CREATE_DEVICE":
+      console.log("created device", action.device);
+  }
   return state;
 };
 

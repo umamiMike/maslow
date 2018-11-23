@@ -3,6 +3,7 @@ import Notifications from "./Notifications";
 import DeviceList from "./DeviceList";
 import { connect } from "react-redux";
 import { DeviceState, SystemState, RootState } from "./interfaces";
+import NewDeviceButton from "./NewDeviceButton";
 
 interface State {}
 
@@ -17,6 +18,7 @@ class Dashboard extends Component<Props, State> {
         <div className="row">
           <div className="col s12 m6">
             <DeviceList devices={this.props.devices} />
+            <NewDeviceButton />
           </div>
           <div className="col s12 m5 offset-m1">
             <Notifications />

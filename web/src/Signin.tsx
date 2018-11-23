@@ -1,4 +1,4 @@
-import React, { Component, SyntheticEvent } from "react";
+import React, { Component } from "react";
 
 export default class Signin extends Component {
   state = {
