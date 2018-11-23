@@ -1,0 +1,36 @@
+import React, { Component } from "react";
+import Notifications from "./Notifications";
+import DeviceList from "./DeviceList";
+import { connect } from "react-redux";
+import { DeviceState, SystemState, RootState } from "./interfaces";
+
+interface State {}
+
+interface Props {
+  devices: DeviceState[];
+}
+
+class Dashboard extends Component<Props, State> {
+  render() {
+    return (
+      <div className="dashboard container">
+        <div className="row">
+          <div className="col s12 m6">
+            <DeviceList devices={this.props.devices} />
+          </div>
+          <div className="col s12 m5 offset-m1">
+            <Notifications />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = (state: any) => {
+  return {
+    devices: state.system.devices
+  };
+};
+
+export default connect(mapStateToProps)(Dashboard);
