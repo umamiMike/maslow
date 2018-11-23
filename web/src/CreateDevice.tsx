@@ -55,7 +55,7 @@ class CreateDevice extends Component<Props, any> {
           </div>
           <div className="input-field">
             <input
-              value="Login"
+              value="Create"
               type="submit"
               className="btn pink lighten-1 z-depth-0"
             />

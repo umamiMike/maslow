@@ -18,7 +18,18 @@ interface RootState {
 // }
 //
 export const createDevice: any = (device: DeviceState) => {
-  return (dispatch: any) => {
-    dispatch({ type: "CREATE_DEVICE", device });
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    // async calls go here
+    const firestore = getFirestore();
+    firestore
+      .collection("devices")
+      .add(device)
+      .then(() => {
+        dispatch({ type: "CREATE_DEVICE", device });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: "Could not create device" });
+      });
   };
 };

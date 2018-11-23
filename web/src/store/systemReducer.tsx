@@ -20,14 +20,20 @@ const initState = {
 interface Action {
   type: string;
   device?: DeviceState;
+  message?: any;
 }
 
 const systemReducer = (state = initState, action: Action) => {
   switch (action.type) {
     case "CREATE_DEVICE":
       console.log("created device", action.device);
+      return state;
+    case "ERROR":
+      console.log(action.message);
+    default:
+      console.log("INVALID ACTION", action.type);
+      return state;
   }
-  return state;
 };
 
 export default systemReducer;
