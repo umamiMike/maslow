@@ -63,7 +63,7 @@ class Signup extends Component<Props, any> {
             />
           </div>
           <div className="input-field">
-            <label htmlFor="lastName">First Name</label>
+            <label htmlFor="lastName">Last Name</label>
             <input
               value={this.state.lastName}
               type="text"
