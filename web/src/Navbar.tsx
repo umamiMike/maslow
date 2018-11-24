@@ -13,9 +13,13 @@ const Navbar = (props: any) => {
     <SignedOutLinks />
   );
   return (
-    <nav className="nav-wrapper grey darken-3">
-      <div className="container">
-        <Link to="/" className="brand-logo">
+    <nav className="flex items-center justify-between flex-wrap bg-yellow-dark p-6 shadow mb-2">
+      <div className="flex w-full items-center flex-no-shrink text-white mr-6">
+        <Link
+          to="/"
+          className="no-underline font-semibold text-xl tracking-tight text-yellow-darkest"
+        >
+          {/* TODO: turn off decoration */}
           Maslow
         </Link>
         {links}

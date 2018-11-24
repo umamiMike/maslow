@@ -2,8 +2,8 @@ import React from "react";
 
 const Notifications = () => {
   return (
-    <div>
-      <p>Notifications</p>
+    <div className="container-m flex-col pr-6">
+      <h3>Notifications</h3>
     </div>
   );
 };

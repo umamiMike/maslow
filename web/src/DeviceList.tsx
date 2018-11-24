@@ -8,12 +8,16 @@ const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
     devices &&
     devices.map(device => {
       return (
-        <Link key={device.id} to={`/device/${device.id}`}>
+        <Link
+          className="no-underline mt-2"
+          key={device.id}
+          to={`/device/${device.id}`}
+        >
           <DeviceSummary device={device} />
         </Link>
       );
     });
-  return <div className="project-list section">{summaries}</div>;
+  return <React.Fragment>{summaries}</React.Fragment>;
 };
 
 export default ProjectList;

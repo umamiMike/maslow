@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import { User } from "./interfaces";
 import { signUp } from "./store/authActions";
+import InputField from "./InputField";
 
 interface Props {
   auth: any;
@@ -32,56 +33,53 @@ class Signup extends Component<Props, any> {
     if (this.props.auth.uid) return <Redirect to="/" />;
     const { authError } = this.props;
     return (
-      <div className="container">
-        <form onSubmit={this.handleSubmit} className="white">
-          <h5 className="grey-text text-darken-3">Sign up</h5>
-          <div className="input-field">
-            <label htmlFor="email">Email</label>
-            <input
+      <div className="flex justify-center align-center pt-6">
+        <div className="w-full max-w-xs">
+          <form
+            onSubmit={this.handleSubmit}
+            className="bg-yellow-lightest shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          >
+            <InputField
+              label="Email"
               value={this.state.email}
+              handleChange={this.handleChange}
+              placeholder="user@gmail.com"
               type="email"
-              id="email"
-              onChange={this.handleChange}
             />
-          </div>
-          <div className="input-field">
-            <label htmlFor="password">Password</label>
-            <input
+            <InputField
+              label="Password"
               value={this.state.password}
+              handleChange={this.handleChange}
+              placeholder="***************"
               type="password"
-              id="password"
-              onChange={this.handleChange}
             />
-          </div>
-          <div className="input-field">
-            <label htmlFor="firstName">First Name</label>
-            <input
+            <InputField
+              label="First Name"
               value={this.state.firstName}
+              handleChange={this.handleChange}
+              placeholder="Larhonda"
               type="text"
-              id="firstName"
-              onChange={this.handleChange}
             />
-          </div>
-          <div className="input-field">
-            <label htmlFor="lastName">Last Name</label>
-            <input
+            <InputField
+              label="Last Name"
               value={this.state.lastName}
+              handleChange={this.handleChange}
+              placeholder="Steele"
               type="text"
-              id="lastName"
-              onChange={this.handleChange}
             />
-          </div>
-          <div className="input-field">
-            <input
-              value="Create account"
-              type="submit"
-              className="btn pink lighten-1 z-depth-0"
-            />
-          </div>
-          <div className="red-text center">
-            {authError ? <p>{authError}</p> : null}
-          </div>
-        </form>
+            <div className="flex items-center justify-between">
+              <button
+                className="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"
+              >
+                Create account
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="text-center text-red text-xl">
+          {authError ? <p>{authError}</p> : null}
+        </div>
       </div>
     );
   }

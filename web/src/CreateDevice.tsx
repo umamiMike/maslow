@@ -3,6 +3,7 @@ import { createDevice } from "./store/deviceActions";
 import { DeviceState } from "./interfaces";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
+import InputField from "./InputField";
 
 interface Props {
   createDevice: any; // fixme
@@ -29,41 +30,46 @@ class CreateDevice extends Component<Props, any> {
   render() {
     if (!this.props.auth.uid) return <Redirect to="/signin" />;
     return (
-      <div className="container">
-        <form onSubmit={this.handleSubmit} className="white">
-          <h5 className="grey-text text-darken-3">New Device</h5>
-          <div className="input-field">
-            <label htmlFor="name">Name</label>
-            <input
-              value={this.state.name}
+      <div className="flex justify-center align-center pt-6">
+        <div className="w-full max-w-xs">
+          <form
+            onSubmit={this.handleSubmit}
+            className="bg-yellow-lightest shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          >
+            <InputField
               id="name"
-              onChange={this.handleChange}
+              label="Device name"
+              value={this.state.name}
+              handleChange={this.handleChange}
+              placeholder="Joe's iPhone X"
+              type="text"
             />
-          </div>
-          <div className="input-field">
-            <label htmlFor="description">Description</label>
-            <input
-              value={this.state.description}
+            <InputField
               id="description"
-              onChange={this.handleChange}
+              label="Description"
+              value={this.state.description}
+              handleChange={this.handleChange}
+              placeholder="This device is Joe's secondary iPhone that he keeps for children who are visiting"
+              type="text"
             />
-          </div>
-          <div className="input-field">
-            <label htmlFor="mac">Mac Address</label>
-            <input
-              value={this.state.mac}
+            <InputField
               id="mac"
-              onChange={this.handleChange}
+              label="MAC Address"
+              value={this.state.mac}
+              handleChange={this.handleChange}
+              placeholder="dc:a9:04:76:06:c2"
+              type="text"
             />
-          </div>
-          <div className="input-field">
-            <input
-              value="Create"
-              type="submit"
-              className="btn pink lighten-1 z-depth-0"
-            />
-          </div>
-        </form>
+            <div className="flex items-center justify-between">
+              <button
+                className="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"
+              >
+                Create device
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }

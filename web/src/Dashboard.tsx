@@ -20,16 +20,13 @@ class Dashboard extends Component<Props, State> {
     const { auth } = this.props;
     if (!auth.uid) return <Redirect to="/signin" />;
     return (
-      <div className="dashboard container">
-        <div className="row">
-          <div className="col s12 m6">
-            <DeviceList devices={this.props.devices} />
-            <NewDeviceButton />
-          </div>
-          <div className="col s12 m5 offset-m1">
-            <Notifications />
-          </div>
+      <div className="flex flex-row justify-between container">
+        <div className="flex container-lg flex-col pl-6 pb-2">
+          <h3 className="font-sans">Devices</h3>
+          <DeviceList devices={this.props.devices} />
+          <NewDeviceButton />
         </div>
+        <Notifications />
       </div>
     );
   }

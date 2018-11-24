@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import MaslowNavLink from "./MaslowNavLink";
 import { connect } from "react-redux";
 import { signOut } from "./store/authActions";
 
@@ -14,25 +14,18 @@ const generateInitials = (profile: any) => {
 const SignedInLinks = (props: any) => {
   const initials = generateInitials(props.profile);
   return (
-    <ul className="right">
-      <li>
-        <NavLink to="/">Devices</NavLink>
-      </li>
-      <li>
-        <NavLink to="/">Users</NavLink>
-      </li>
-      <li>
-        <NavLink to="/">Policies</NavLink>
-      </li>
-      <li>
-        <a onClick={props.signOut}>Log Out</a>
-      </li>
-      <li>
-        <NavLink to="/" className="btn btn-floating pink lighten-1">
-          {initials}
-        </NavLink>
-      </li>
-    </ul>
+    <div className="w-full justify-between block flex-grow lg:flex lg:items-center lg:w-auto">
+      <div className="flex justify-end lg:flex-grow">
+        <MaslowNavLink to="/">Devices</MaslowNavLink>
+        <button
+          className="no-underline block mt-4 lg:inline-block lg:mt-0 text-yellow-darkest hover:text-white mr-4"
+          onClick={props.signOut}
+        >
+          Log Out
+        </button>
+        <MaslowNavLink to="/">{initials}</MaslowNavLink>
+      </div>
+    </div>
   );
 };
 

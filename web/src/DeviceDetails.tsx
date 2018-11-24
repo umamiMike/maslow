@@ -20,23 +20,57 @@ interface Props {
 function ProjectDetails(props: Props) {
   const id = props.match.params.id;
   let details = (
-    <div className="card-content">
-      <span className="card-title">Loading…</span>
+    <div className="container">
+      <h1>Loading…</h1>
     </div>
   );
   if (props.device) {
     details = (
-      <React.Fragment>
-        <div className="card-content">
-          <span className="card-title">
-            {props.device.name} {id}
-          </span>
-          <p>{props.device.description}</p>
+      <div className="flex justify-center align-center">
+        <div className="w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
+          <img className="w-full" src="/macbook.png" alt="Macbook" />
+          <div className="px-6 py-4">
+            <div className="font-bold text-xl mb-2">{props.device.name}</div>
+            <p className="text-sm text-grey-dark flex items-center mb-4">
+              <svg
+                className="fill-current text-grey w-3 h-3 mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z" />
+              </svg>
+              Policy: Locked-down
+            </p>
+            <p className="text-grey-darker text-base">
+              {props.device.description}
+            </p>
+            <p className="text-grey text-base">{props.device.mac}</p>
+          </div>
+
+          <div className="flex items-center ml-4">
+            <img
+              className="w-10 h-10 rounded-full mr-4"
+              src="https://pbs.twimg.com/profile_images/885868801232961537/b1F6H4KC_400x400.jpg"
+              alt="Avatar of Jonathan Reinink"
+            />
+            <div className="text-sm">
+              <p className="text-black leading-none">Jonathan Reinink</p>
+              <p className="text-grey-dark">Aug 18</p>
+            </div>
+          </div>
+          <div className="px-6 py-4">
+            <span className="inline-block bg-grey-lighter rounded-full px-3 py-1 text-sm font-semibold text-grey-darker mr-2">
+              #photography
+            </span>
+            <span className="inline-block bg-grey-lighter rounded-full px-3 py-1 text-sm font-semibold text-grey-darker mr-2">
+              #travel
+            </span>
+            <span className="inline-block bg-grey-lighter rounded-full px-3 py-1 text-sm font-semibold text-grey-darker">
+              #winter
+            </span>
+          </div>
         </div>
-        <div className="card-action grey lighten-4 grey-text">
-          <div>{props.device.mac}</div>
-        </div>
-      </React.Fragment>
+      </div>
     );
   }
 
