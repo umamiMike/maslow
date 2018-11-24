@@ -6,15 +6,19 @@ import { compose } from "redux";
 import { DeviceState, SystemState, RootState } from "./interfaces";
 import NewDeviceButton from "./NewDeviceButton";
 import { firestoreConnect } from "react-redux-firebase";
+import { Redirect } from "react-router-dom";
 
 interface State {}
 
 interface Props {
   devices: DeviceState[];
+  auth: any;
 }
 
 class Dashboard extends Component<Props, State> {
   render() {
+    const { auth } = this.props;
+    if (!auth.uid) return <Redirect to="/signin" />;
     return (
       <div className="dashboard container">
         <div className="row">
@@ -33,7 +37,8 @@ class Dashboard extends Component<Props, State> {
 
 const mapStateToProps = (state: any) => {
   return {
-    devices: state.firestore.ordered.devices
+    devices: state.firestore.ordered.devices,
+    auth: state.firebase.auth
   };
 };
 

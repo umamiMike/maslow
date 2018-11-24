@@ -30,7 +30,7 @@ const systemReducer = (state = initState, action: Action) => {
     case "ERROR":
       console.log(action.message);
     default:
-      console.log("INVALID ACTION", action.type);
+      // console.log("INVALID ACTION", action.type);
       return state;
   }
 };

@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import { createDevice } from "./store/deviceActions";
 import { DeviceState } from "./interfaces";
 import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 
 interface Props {
-  createDevice: any;
+  createDevice: any; // fixme
+  auth: any; // fixme
 }
 
 // FIXME: any for state should be DeviceType
@@ -25,6 +27,7 @@ class CreateDevice extends Component<Props, any> {
   };
 
   render() {
+    if (!this.props.auth.uid) return <Redirect to="/signin" />;
     return (
       <div className="container">
         <form onSubmit={this.handleSubmit} className="white">
@@ -66,6 +69,12 @@ class CreateDevice extends Component<Props, any> {
   }
 }
 
+const mapStateToProps = (state: any) => {
+  return {
+    auth: state.firebase.auth
+  };
+};
+
 const mapDispatchToProps = (dispatch: any) => {
   return {
     createDevice: (device: DeviceState) => dispatch(createDevice(device))
@@ -73,6 +82,6 @@ const mapDispatchToProps = (dispatch: any) => {
 };
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(CreateDevice);
