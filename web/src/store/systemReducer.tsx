@@ -26,7 +26,6 @@ interface Action {
 const systemReducer = (state = initState, action: Action) => {
   switch (action.type) {
     case "CREATE_DEVICE":
-      console.log("created device", action.device);
       return state;
     case "ERROR":
       console.log(action.message);

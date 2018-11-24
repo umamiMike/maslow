@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import Notifications from "./Notifications";
 import DeviceList from "./DeviceList";
 import { connect } from "react-redux";
+import { compose } from "redux";
 import { DeviceState, SystemState, RootState } from "./interfaces";
 import NewDeviceButton from "./NewDeviceButton";
+import { firestoreConnect } from "react-redux-firebase";
 
 interface State {}
 
@@ -31,8 +33,12 @@ class Dashboard extends Component<Props, State> {
 
 const mapStateToProps = (state: any) => {
   return {
-    devices: state.system.devices
+    devices: state.firestore.ordered.devices
   };
 };
 
-export default connect(mapStateToProps)(Dashboard);
+// FIXME
+export default compose(
+  connect(mapStateToProps),
+  firestoreConnect([{ collection: "devices" }])
+)(Dashboard);
