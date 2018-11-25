@@ -69,3 +69,20 @@ export const deleteDevice: any = (id: string) => {
       });
   };
 };
+
+export const deleteSite: any = (id: string) => {
+  return (dispatch: any, getState: any, { getFirestore }: any) => {
+    const firestore = getFirestore();
+    return firestore
+      .collection("sites")
+      .doc(id)
+      .delete()
+      .then(() => {
+        dispatch({ type: "DELETE_SITE", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: "Could not delete site" });
+      });
+  };
+};

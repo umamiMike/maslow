@@ -16,12 +16,12 @@ function Sites(props: Props) {
   const siteData = props.sites.map(site => {
     return (
       <Link className="no-underline mt-2" key={site.id} to={`/site/${site.id}`}>
-        <SiteSummary site={site} />;
+        <SiteSummary site={site} />
       </Link>
     );
   });
   return (
-    <div className="flex container-lg flex-col pl-6 pb-2">
+    <div className="flex container-lg flex-col px-6 pb-2">
       <h3 className="font-sans">Sites</h3>
       {siteData}
       <NewDeviceButton to="/new-site" />

@@ -5,26 +5,43 @@ import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import InputField from "./InputField";
 import DropdownIcon from "./DropdownIcon";
+import ArrayInput from "./ArrayInput";
 
 interface Props {
   createSite: any; // fixme
   auth: any; // fixme
 }
 
-class CreateSite extends Component<Props, any> {
+class CreateSite extends Component<Props, SiteType> {
   state: SiteType = {
     name: "",
     description: "",
-    addresses: [],
-    icon: ""
+    addresses: [""],
+    icon: "icon-001"
   };
 
   handleChange = (e: any) => {
-    this.setState({ [e.target.id]: e.target.value });
+    let value = e.target.value as string;
+    let target = e.target.id as string;
+    let index = null;
+    if (target.indexOf(":") !== -1) {
+      [target, index] = target.split(":");
+    }
+    if (target === "addresses") {
+      const addresses = [...this.state.addresses];
+      addresses[parseInt(index as string, 10)] = value;
+      this.setState({ addresses });
+      return;
+    }
+    if (target === "name") this.setState({ name: value });
+    if (target === "description") this.setState({ description: value });
+    if (target === "icon") this.setState({ icon: value });
   };
 
   handleSubmit = (e: any) => {
     e.preventDefault();
+    const siteData = { ...this.state };
+    siteData.icon = `captainicon:${siteData.icon}`;
     this.props.createSite(this.state);
   };
 
@@ -32,7 +49,7 @@ class CreateSite extends Component<Props, any> {
     if (!this.props.auth.uid) return <Redirect to="/signin" />;
     return (
       <div className="flex justify-center align-center pt-6">
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-md">
           <form
             onSubmit={this.handleSubmit}
             className="bg-yellow-lightest shadow-md rounded px-8 pt-6 pb-8 mb-4"
@@ -53,8 +70,17 @@ class CreateSite extends Component<Props, any> {
               placeholder="A site that is funded on advertising that provides weather data"
               type="text"
             />
-            <DropdownIcon />
-            {/* TODO: Icon drop-down and address field input */}
+
+            <DropdownIcon
+              value={this.state.icon}
+              id="icon"
+              onChange={this.handleChange}
+            />
+            <ArrayInput
+              value={this.state.addresses}
+              id="addresses"
+              onChange={this.handleChange}
+            />
             <div className="flex items-center justify-between">
               <button
                 className="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

@@ -16,6 +16,8 @@ const systemReducer = (state = initState, action: Action) => {
       return state;
     case "CREATE_SITE":
       return state;
+    case "DELETE_SITE":
+      return state;
     case "ERROR":
       console.log(action.message);
     default:
