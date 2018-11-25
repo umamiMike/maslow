@@ -17,6 +17,8 @@ const SignedInLinks = (props: any) => {
     <div className="w-full justify-between block flex-grow lg:flex lg:items-center lg:w-auto">
       <div className="flex justify-end lg:flex-grow">
         <MaslowNavLink to="/">Devices</MaslowNavLink>
+        <MaslowNavLink to="/policies">Policies</MaslowNavLink>
+        <MaslowNavLink to="/sites">Sites</MaslowNavLink>
         <button
           className="no-underline block mt-4 lg:inline-block lg:mt-0 text-yellow-darkest hover:text-white mr-4"
           onClick={props.signOut}

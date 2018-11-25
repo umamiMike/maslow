@@ -3,6 +3,14 @@ export interface AuthState {
   password: string;
 }
 
+export interface SiteType {
+  id?: string;
+  description: string;
+  name: string;
+  icon: string;
+  addresses: string[];
+}
+
 export interface User {
   firstName: string;
   lastName: string;

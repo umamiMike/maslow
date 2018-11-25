@@ -1,7 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import DeviceSummary from "./DeviceSummary";
 import { DeviceState } from "./interfaces";
-import { Link } from "react-router-dom";
+import NewDeviceButton from "./NewDeviceButton";
 
 const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
   const summaries =
@@ -17,7 +18,13 @@ const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
         </Link>
       );
     });
-  return <React.Fragment>{summaries}</React.Fragment>;
+  return (
+    <div className="flex container-lg flex-col pl-6 pb-2">
+      <h3 className="font-sans">Devices</h3>
+      {summaries}
+      <NewDeviceButton to="/new-device" />
+    </div>
+  );
 };
 
 export default ProjectList;

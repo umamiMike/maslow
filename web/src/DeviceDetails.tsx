@@ -45,7 +45,7 @@ class ProjectDetails extends Component<Props, State> {
     if (this.props.device) {
       details = (
         <div className="flex justify-center align-center">
-          <div className="w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
+          <div className="mt-4 w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
             <img className="w-full" src="/macbook.png" alt="Macbook" />
             <div className="px-6 py-4">
               <div className="font-bold text-xl mb-2">
@@ -90,10 +90,22 @@ class ProjectDetails extends Component<Props, State> {
               </span>
             </div>
           </div>
-          <div className="flex ml-4 items-center justify-between">
+          <div className="flex flex-col items-start">
+            <button
+              onClick={() => undefined}
+              className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Grant access
+            </button>
+            <button
+              onClick={() => undefined}
+              className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Edit
+            </button>
             <button
               onClick={this.deleteDevice}
-              className="bg-red hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-red m-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Delete
             </button>

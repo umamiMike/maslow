@@ -1,4 +1,6 @@
-import { DeviceState, SystemState } from "../interfaces";
+// TODO: Rename to systemActions
+
+import { DeviceState, SystemState, SiteType } from "../interfaces";
 
 interface RootState {
   auth: any;
@@ -30,6 +32,23 @@ export const createDevice: any = (device: DeviceState) => {
       .catch((e: any) => {
         console.error(e);
         dispatch({ type: "ERROR", message: "Could not create device" });
+      });
+  };
+};
+
+export const createSite: any = (site: SiteType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    // async calls go here
+    const firestore = getFirestore();
+    firestore
+      .collection("sites")
+      .add(site)
+      .then(() => {
+        dispatch({ type: "CREATE_SITE", site });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: "Could not create site" });
       });
   };
 };
