@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import DeviceSummary from "./DeviceSummary";
 import { DeviceState } from "./interfaces";
-import NewDeviceButton from "./NewDeviceButton";
+import NewButton from "./NewButton";
 
 const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
   const summaries =
@@ -22,7 +22,7 @@ const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
     <div className="flex container-lg flex-col pl-6 pb-2">
       <h3 className="font-sans">Devices</h3>
       {summaries}
-      <NewDeviceButton to="/new-device" />
+      <NewButton to="/new-device" />
     </div>
   );
 };

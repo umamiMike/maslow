@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { createDevice } from "./store/deviceActions";
+import { createDevice } from "./store/systemActions";
 import { DeviceState } from "./interfaces";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";

@@ -5,7 +5,7 @@ interface Props {
   to: string;
 }
 
-export default function NewDeviceButton(props: Props) {
+export default function NewButton(props: Props) {
   return (
     <div className="flex items-center content-center self-center pt-6">
       <Link

@@ -4,7 +4,7 @@ import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
 import { SiteType } from "./interfaces";
-import { deleteSite } from "./store/deviceActions";
+import { deleteSite } from "./store/systemActions";
 import Icon from "./Icon";
 
 interface ParamType {

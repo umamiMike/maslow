@@ -5,7 +5,7 @@ import { firestoreConnect } from "react-redux-firebase";
 import { SiteType } from "./interfaces";
 import { Link } from "react-router-dom";
 import SiteSummary from "./SiteSummary";
-import NewDeviceButton from "./NewDeviceButton";
+import NewButton from "./NewButton";
 
 interface Props {
   sites: SiteType[];
@@ -24,7 +24,7 @@ function Sites(props: Props) {
     <div className="flex container-lg flex-col px-6 pb-2">
       <h3 className="font-sans">Sites</h3>
       {siteData}
-      <NewDeviceButton to="/new-site" />
+      <NewButton to="/new-site" />
     </div>
   );
 }
