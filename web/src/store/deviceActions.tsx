@@ -33,3 +33,20 @@ export const createDevice: any = (device: DeviceState) => {
       });
   };
 };
+
+export const deleteDevice: any = (id: string) => {
+  return (dispatch: any, getState: any, { getFirestore }: any) => {
+    const firestore = getFirestore();
+    return firestore
+      .collection("devices")
+      .doc(id)
+      .delete()
+      .then(() => {
+        dispatch({ type: "DELETE_DEVICE", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: "Could not delete device" });
+      });
+  };
+};
