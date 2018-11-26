@@ -1,10 +1,10 @@
-import { DeviceState } from "../interfaces";
+import { DeviceType } from "../interfaces";
 
 const initState = { devices: [] };
 
 interface Action {
   type: string;
-  device?: DeviceState;
+  device?: DeviceType;
   message?: any;
 }
 

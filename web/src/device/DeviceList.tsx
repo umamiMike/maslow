@@ -1,10 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import DeviceSummary from "./DeviceSummary";
-import { DeviceState } from "../interfaces";
+import { DeviceType, PolicyDict, UserDict } from "../interfaces";
 import NewButton from "../components/NewButton";
 
-const DeviceList = ({ devices }: { devices: DeviceState[] }) => {
+const DeviceList = ({
+  devices,
+  userDict,
+  policyDict
+}: {
+  devices: DeviceType[];
+  userDict: UserDict;
+  policyDict: PolicyDict;
+}) => {
   const summaries =
     devices &&
     devices.map(device => {
@@ -14,7 +22,11 @@ const DeviceList = ({ devices }: { devices: DeviceState[] }) => {
           key={device.id}
           to={`/device/${device.id}`}
         >
-          <DeviceSummary device={device} />
+          <DeviceSummary
+            device={device}
+            userDict={userDict}
+            policyDict={policyDict}
+          />
         </Link>
       );
     });

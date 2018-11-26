@@ -16,9 +16,14 @@ export interface PolicyType {
   description: string;
 }
 
-interface SiteDict {
+export interface PolicyDict {
+  [index: string]: PolicyType;
+}
+
+export interface SiteDict {
   [index: string]: SiteType;
 }
+
 export interface SiteType {
   id?: string;
   description: string;
@@ -36,15 +41,23 @@ export interface UserType {
   password?: string;
 }
 
-export interface DeviceState {
+export interface UserDict {
+  [index: string]: UserType;
+}
+
+export interface DeviceType {
   id?: string;
   name: string;
   description: string;
   mac: string;
+  manufacturer: string;
+  model: string;
+  defaultPolicyId: string;
+  users: string[];
 }
 
 export interface SystemState {
-  devices: DeviceState[];
+  devices: DeviceType[];
 }
 
 export interface RootState {

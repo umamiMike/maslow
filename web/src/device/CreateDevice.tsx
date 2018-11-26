@@ -1,21 +1,31 @@
 import React, { Component } from "react";
 import { createDevice } from "../store/systemActions";
-import { DeviceState } from "../interfaces";
+import { compose } from "redux";
+import { firestoreConnect } from "react-redux-firebase";
+import { DeviceType, PolicyType, OptionType, UserType } from "../interfaces";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import InputField from "../components/InputField";
+import ArrayInput from "../components/ArrayInput";
+import { getDeviceOptions, manufacturerOptions } from "../productData";
 
 interface Props {
   createDevice: any; // fixme
   auth: any; // fixme
+  policies: PolicyType[];
+  users: UserType[];
 }
 
 // FIXME: any for state should be DeviceType
 class CreateDevice extends Component<Props, any> {
-  state: DeviceState = {
+  state: DeviceType = {
     name: "",
     description: "",
-    mac: ""
+    mac: "",
+    manufacturer: "",
+    model: "",
+    defaultPolicyId: "",
+    users: [""]
   };
 
   handleChange = (e: any) => {
@@ -29,6 +39,18 @@ class CreateDevice extends Component<Props, any> {
 
   render() {
     if (!this.props.auth.uid) return <Redirect to="/signin" />;
+    if (this.props.policies == null || this.props.users == null) {
+      return <h1>Loading…</h1>;
+    }
+    const policyOptions: OptionType[] = this.props.policies.map(policy => {
+      return { label: policy.name, value: policy.id || "" };
+    });
+    const userOptions: OptionType[] = this.props.users.map(user => {
+      return {
+        label: `${user.firstName} ${user.lastName}`,
+        value: user.id || ""
+      };
+    });
     return (
       <div className="flex justify-center align-center pt-6">
         <div className="w-full max-w-xs">
@@ -60,6 +82,37 @@ class CreateDevice extends Component<Props, any> {
               placeholder="dc:a9:04:76:06:c2"
               type="text"
             />
+            <InputField
+              id="manufacturer"
+              label="Manufacturer"
+              value={this.state.manufacturer}
+              handleChange={this.handleChange}
+              type="select"
+              options={manufacturerOptions}
+            />
+            <InputField
+              id="model"
+              label="Device model"
+              value={this.state.model}
+              handleChange={this.handleChange}
+              type="select"
+              options={getDeviceOptions(this.state.manufacturer)}
+            />
+            <InputField
+              id="defaultPolicyId"
+              label="Default policy"
+              value={this.state.defaultPolicyId}
+              handleChange={this.handleChange}
+              type="select"
+              options={policyOptions}
+            />
+            <ArrayInput
+              value={this.state.users}
+              label="Users of this device"
+              id="users"
+              onChange={this.handleChange}
+              options={userOptions}
+            />
             <div className="flex items-center justify-between">
               <button
                 className="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -77,17 +130,23 @@ class CreateDevice extends Component<Props, any> {
 
 const mapStateToProps = (state: any) => {
   return {
+    policies: state.firestore.ordered.policies,
+    users: state.firestore.ordered.users,
     auth: state.firebase.auth
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    createDevice: (device: DeviceState) => dispatch(createDevice(device))
+    createDevice: (device: DeviceType) => dispatch(createDevice(device))
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+export default compose(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ),
+  firestoreConnect([{ collection: "policies" }]),
+  firestoreConnect([{ collection: "users" }])
 )(CreateDevice);

@@ -6,7 +6,9 @@ interface Props {
   id: string;
   value: string[];
   onChange: (selected: any) => void;
-  choices?: OptionType[];
+  options?: OptionType[];
+  placeholder?: string;
+  label: string;
 }
 
 interface State {
@@ -23,13 +25,13 @@ export default class ArrayInput extends Component<Props, State> {
   };
 
   makeControl = (i: number) => {
-    if (this.props.choices == null) {
+    if (this.props.options == null) {
       return (
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline"
           id={`${this.props.id}:${i}`}
           type="string"
-          placeholder=".*\.facebook\.com"
+          placeholder={this.props.placeholder}
           value={this.props.value[i] || ""}
           onChange={this.props.onChange}
         />
@@ -44,8 +46,9 @@ export default class ArrayInput extends Component<Props, State> {
     return (
       <Select
         className="w-full"
-        options={this.props.choices}
+        options={this.props.options}
         onChange={selectChange}
+        placeholder={this.props.placeholder}
       />
     );
   };
@@ -73,7 +76,7 @@ export default class ArrayInput extends Component<Props, State> {
     return (
       <div className="mb-4">
         <label className="block text-grey-darker text-sm font-bold mb-2">
-          Addresses
+          {this.props.label}
         </label>
         {inputs}
       </div>

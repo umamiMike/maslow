@@ -1,6 +1,6 @@
 // TODO: Rename to systemActions
 
-import { DeviceState, SystemState, SiteType, PolicyType } from "../interfaces";
+import { DeviceType, SystemState, SiteType, PolicyType } from "../interfaces";
 
 interface RootState {
   auth: any;
@@ -15,11 +15,11 @@ interface RootState {
 // import { Dispatch } from "redux";
 // import { ThunkAction } from "redux-thunk";
 // type ThunkResult<R> = ThunkAction<R, RootState, undefined, any>;
-// export const createDevice: ThunkResult<Promise<boolean>> = (device: DeviceState) => {
+// export const createDevice: ThunkResult<Promise<boolean>> = (device: DeviceType) => {
 //   return Promise.resolve(true)
 // }
 //
-export const createDevice: any = (device: DeviceState) => {
+export const createDevice: any = (device: DeviceType) => {
   return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
     const firestore = getFirestore();
     firestore

@@ -48,9 +48,9 @@ class CreatePolicy extends Component<Props, PolicyType> {
 
   render() {
     if (!this.props.auth.uid) return <Redirect to="/policies" />;
-    let siteChoices: OptionType[] = [];
+    let siteOptions: OptionType[] = [];
     if (this.props.siteDict) {
-      siteChoices = Object.keys(this.props.siteDict).map(siteId => {
+      siteOptions = Object.keys(this.props.siteDict).map(siteId => {
         return { value: siteId, label: this.props.siteDict[siteId].name };
       });
     }
@@ -83,10 +83,11 @@ class CreatePolicy extends Component<Props, PolicyType> {
               onChange={this.handleChange}
             />
             <ArrayInput
+              label="Sites that comprise this policy"
               value={this.state.siteIds}
               id="siteIds"
               onChange={this.handleChange}
-              choices={siteChoices}
+              options={siteOptions}
             />
             <div className="flex items-center justify-between">
               <button

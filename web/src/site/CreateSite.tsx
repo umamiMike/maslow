@@ -75,8 +75,10 @@ class CreateSite extends Component<Props, SiteType> {
               onChange={this.handleChange}
             />
             <ArrayInput
+              label="Addresses"
               value={this.state.addresses}
               id="addresses"
+              placeholder=".*\.facebook\.com"
               onChange={this.handleChange}
             />
             <div className="flex items-center justify-between">
