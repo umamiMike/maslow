@@ -1,6 +1,12 @@
 // TODO: Rename to systemActions
 
-import { DeviceType, SystemState, SiteType, PolicyType } from "../interfaces";
+import {
+  DeviceType,
+  SystemState,
+  SiteType,
+  PolicyType,
+  TemporaryPolicyType
+} from "../interfaces";
 
 interface RootState {
   auth: any;
@@ -63,6 +69,27 @@ export const createPolicy: any = (policy: PolicyType) => {
       .catch((e: any) => {
         console.error(e);
         dispatch({ type: "ERROR", message: "Could not create policy" });
+      });
+  };
+};
+
+export const createTemporaryPolicy: any = (
+  temporaryPolicy: TemporaryPolicyType
+) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("temporaryPolicies")
+      .add(temporaryPolicy)
+      .then(() => {
+        dispatch({ type: "CREATE_TEMPORARY_POLICY", temporaryPolicy });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({
+          type: "ERROR",
+          message: "Could not create temporaryPolicy"
+        });
       });
   };
 };

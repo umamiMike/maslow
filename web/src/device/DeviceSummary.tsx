@@ -29,7 +29,7 @@ const DeviceSummary = ({
         </p>
         {device.users.map(userId => {
           const user = userDict[userId] || {};
-          return <UserGravatar user={user} userId={userId} />;
+          return <UserGravatar key={userId} user={user} userId={userId} />;
         })}
       </div>
     </div>

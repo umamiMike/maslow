@@ -5,7 +5,14 @@ export interface AuthState {
 
 export interface OptionType {
   label: string;
-  value: string;
+  value: string | number;
+}
+
+export interface TemporaryPolicyType {
+  policyId: string;
+  deviceId: string;
+  duration: number;
+  startTime: Date;
 }
 
 export interface PolicyType {

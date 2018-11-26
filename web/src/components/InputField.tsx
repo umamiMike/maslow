@@ -10,6 +10,7 @@ interface Props {
   type: string;
   placeholder?: string;
   options?: OptionType[];
+  className?: string;
 }
 
 const makeControl = (props: Props, id: string) => {
@@ -44,8 +45,10 @@ const makeControl = (props: Props, id: string) => {
 
 const InputField = (props: Props) => {
   const id = props.id || props.label.replace(/\s/g, "").toLowerCase();
+  let className = props.className || "";
+  className += " mb-4";
   return (
-    <div className="mb-4">
+    <div className={className}>
       <label
         className="block text-grey-darker text-sm font-bold mb-2"
         htmlFor={id}

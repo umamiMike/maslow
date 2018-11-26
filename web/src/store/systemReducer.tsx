@@ -22,6 +22,9 @@ const systemReducer = (state = initState, action: Action) => {
       return state;
     case "DELETE_POLICY":
       return state;
+    case "CREATE_TEMPORARY_POLICY":
+      console.log("created temporary policy");
+      return state;
     case "ERROR":
       console.log(action.message);
     default:

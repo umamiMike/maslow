@@ -11,7 +11,6 @@ const UserSummary = ({ user }: { user: UserType }) => {
         <h1 className="text-black font-bold text-xl mb-2">
           {user.firstName} {user.lastName}
         </h1>
-        <p className="text-grey-darker text-base">PUT STUFF</p>
       </div>
     </div>
   );
