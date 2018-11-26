@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { OptionType } from "./interfaces";
+import { OptionType } from "../interfaces";
 import Select from "react-select";
 
 interface Props {

@@ -3,9 +3,9 @@ import { connect } from "react-redux";
 import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
-import { PolicyType, SiteDict } from "./interfaces";
-import { deletePolicy } from "./store/systemActions";
-import Icon from "./Icon";
+import { PolicyType, SiteDict } from "../interfaces";
+import { deletePolicy } from "../store/systemActions";
+import Icon from "../components/Icon";
 
 interface ParamType {
   id: Number;
@@ -44,7 +44,6 @@ class PolicyDetails extends Component<Props, State> {
         <h1>Loading…</h1>
       </div>
     );
-    console.log(this.props.siteDict);
     if (this.props.policy && this.props.siteDict) {
       details = (
         <div className="flex justify-center align-center">

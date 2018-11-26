@@ -1,5 +1,5 @@
 import React from "react";
-import MaslowNavLink from "./MaslowNavLink";
+import MaslowNavLink from "./components/MaslowNavLink";
 
 const SignedOutLinks = () => {
   return (

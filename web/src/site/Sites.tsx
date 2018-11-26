@@ -2,10 +2,10 @@ import React from "react";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import { firestoreConnect } from "react-redux-firebase";
-import { SiteType } from "./interfaces";
+import { SiteType } from "../interfaces";
 import { Link } from "react-router-dom";
 import SiteSummary from "./SiteSummary";
-import NewButton from "./NewButton";
+import NewButton from "../components/NewButton";
 
 interface Props {
   sites: SiteType[];

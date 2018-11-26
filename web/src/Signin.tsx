@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { signIn } from "./store/authActions";
 import { AuthState } from "./interfaces";
 import { Redirect } from "react-router-dom";
-import InputField from "./InputField";
+import InputField from "./components/InputField";
 
 interface Props {
   signIn: any; //fixme

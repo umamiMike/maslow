@@ -2,8 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import { firestoreConnect } from "react-redux-firebase";
-import { PolicyType, SiteDict } from "./interfaces";
-import NewButton from "./NewButton";
+import { PolicyType, SiteDict } from "../interfaces";
+import NewButton from "../components/NewButton";
 import { Link } from "react-router-dom";
 import PolicySummary from "./PolicySummary";
 

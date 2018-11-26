@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import DeviceSummary from "./DeviceSummary";
-import { DeviceState } from "./interfaces";
-import NewButton from "./NewButton";
+import { DeviceState } from "../interfaces";
+import NewButton from "../components/NewButton";
 
 const DeviceList = ({ devices }: { devices: DeviceState[] }) => {
   const summaries =

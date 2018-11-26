@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import { createPolicy } from "./store/systemActions";
-import { OptionType, PolicyType, SiteDict } from "./interfaces";
+import { createPolicy } from "../store/systemActions";
+import { OptionType, PolicyType, SiteDict } from "../interfaces";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import { compose } from "redux";
 import { firestoreConnect } from "react-redux-firebase";
-import InputField from "./InputField";
-import DropdownIcon from "./DropdownIcon";
-import ArrayInput from "./ArrayInput";
+import InputField from "../components/InputField";
+import DropdownIcon from "../components/DropdownIcon";
+import ArrayInput from "../components/ArrayInput";
 
 interface Props {
   createPolicy: any; // fixme

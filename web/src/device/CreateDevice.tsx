@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { createDevice } from "./store/systemActions";
-import { DeviceState } from "./interfaces";
+import { createDevice } from "../store/systemActions";
+import { DeviceState } from "../interfaces";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import InputField from "./InputField";
+import InputField from "../components/InputField";
 
 interface Props {
   createDevice: any; // fixme

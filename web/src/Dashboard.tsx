@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Notifications from "./Notifications";
-import DeviceList from "./DeviceList";
+import DeviceList from "./device/DeviceList";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import { DeviceState, SystemState, RootState } from "./interfaces";

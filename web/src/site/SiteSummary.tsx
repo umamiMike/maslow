@@ -1,6 +1,6 @@
 import React from "react";
-import { SiteType } from "./interfaces";
-import Icon from "./Icon";
+import { SiteType } from "../interfaces";
+import Icon from "../components/Icon";
 
 const SiteSummary = ({ site }: { site: SiteType }) => {
   const regexCount = site.addresses.length;

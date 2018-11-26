@@ -1,7 +1,7 @@
 import React from "react";
 import Select from "react-select";
 import Icon from "./Icon";
-import { OptionType } from "./interfaces";
+import { OptionType } from "../interfaces";
 
 interface Props {
   id: string;

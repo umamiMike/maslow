@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { PolicyType, SiteDict } from "./interfaces";
-import Icon from "./Icon";
+import { PolicyType, SiteDict } from "../interfaces";
+import Icon from "../components/Icon";
 
 const PolicySummary = ({
   policy,

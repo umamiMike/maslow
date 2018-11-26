@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
-import { DeviceState } from "./interfaces";
-import { deleteDevice } from "./store/systemActions";
+import { DeviceState } from "../interfaces";
+import { deleteDevice } from "../store/systemActions";
 
 interface ParamType {
   id: Number;

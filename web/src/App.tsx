@@ -1,17 +1,17 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "./components/Navbar";
 import Dashboard from "./Dashboard";
-import DeviceDetails from "./DeviceDetails";
-import SiteDetails from "./SiteDetails";
-import PolicyDetails from "./PolicyDetails";
-import CreateDevice from "./CreateDevice";
-import CreateSite from "./CreateSite";
-import CreatePolicy from "./CreatePolicy";
+import DeviceDetails from "./device/DeviceDetails";
+import SiteDetails from "./site/SiteDetails";
+import PolicyDetails from "./policy/PolicyDetails";
+import CreateDevice from "./device/CreateDevice";
+import CreateSite from "./site/CreateSite";
+import CreatePolicy from "./policy/CreatePolicy";
 import Signin from "./Signin";
 import Signup from "./Signup";
-import Policies from "./Policies";
-import Sites from "./Sites";
+import Policies from "./policy/Policies";
+import Sites from "./site/Sites";
 
 class App extends Component {
   render() {

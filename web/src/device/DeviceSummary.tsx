@@ -1,5 +1,5 @@
 import React from "react";
-import { DeviceState } from "./interfaces";
+import { DeviceState } from "../interfaces";
 
 const DeviceSummary = ({ device }: { device: DeviceState }) => {
   return (

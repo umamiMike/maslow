@@ -1,5 +1,5 @@
 import React from "react";
-import MaslowNavLink from "./MaslowNavLink";
+import MaslowNavLink from "./components/MaslowNavLink";
 import { connect } from "react-redux";
 import { signOut } from "./store/authActions";
 
