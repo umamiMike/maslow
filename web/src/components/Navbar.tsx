@@ -13,7 +13,7 @@ const Navbar = (props: any) => {
     <SignedOutLinks />
   );
   return (
-    <nav className="flex items-center justify-between flex-wrap bg-yellow-dark p-6 shadow mb-2">
+    <nav className="flex items-center justify-between flex-wrap bg-yellow-dark px-6 py-2 shadow mb-2">
       <div className="flex w-full items-center flex-no-shrink text-white mr-6">
         <Link
           to="/"

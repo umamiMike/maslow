@@ -1,7 +1,7 @@
 import React, { Component, SyntheticEvent } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { User } from "./interfaces";
+import { UserType } from "./interfaces";
 import { signUp } from "./store/authActions";
 import InputField from "./components/InputField";
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 class Signup extends Component<Props, any> {
-  state: User = {
+  state: UserType = {
     firstName: "",
     lastName: "",
     email: "",
@@ -47,12 +47,13 @@ class Signup extends Component<Props, any> {
             />
             <InputField
               label="Password"
-              value={this.state.password}
+              value={this.state.password || ""}
               handleChange={this.handleChange}
               placeholder="***************"
               type="password"
             />
             <InputField
+              id="firstName"
               label="First Name"
               value={this.state.firstName}
               handleChange={this.handleChange}
@@ -60,6 +61,7 @@ class Signup extends Component<Props, any> {
               type="text"
             />
             <InputField
+              id="lastName"
               label="Last Name"
               value={this.state.lastName}
               handleChange={this.handleChange}
@@ -93,7 +95,7 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    signUp: (newUser: User) => dispatch(signUp(newUser))
+    signUp: (newUser: UserType) => dispatch(signUp(newUser))
   };
 };
 

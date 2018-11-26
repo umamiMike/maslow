@@ -27,11 +27,13 @@ export interface SiteType {
   addresses: string[];
 }
 
-export interface User {
+export interface UserType {
+  id?: string;
+  email: string;
   firstName: string;
   lastName: string;
-  email: string;
-  password: string;
+  gravatar?: string;
+  password?: string;
 }
 
 export interface DeviceState {
