@@ -3,6 +3,22 @@ export interface AuthState {
   password: string;
 }
 
+export interface OptionType {
+  label: string;
+  value: string;
+}
+
+export interface PolicyType {
+  id?: string;
+  icon: string;
+  siteIds: string[];
+  name: string;
+  description: string;
+}
+
+interface SiteDict {
+  [index: string]: SiteType;
+}
 export interface SiteType {
   id?: string;
   description: string;

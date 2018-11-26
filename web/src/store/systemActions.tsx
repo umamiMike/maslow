@@ -1,6 +1,6 @@
 // TODO: Rename to systemActions
 
-import { DeviceState, SystemState, SiteType } from "../interfaces";
+import { DeviceState, SystemState, SiteType, PolicyType } from "../interfaces";
 
 interface RootState {
   auth: any;
@@ -21,7 +21,6 @@ interface RootState {
 //
 export const createDevice: any = (device: DeviceState) => {
   return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
-    // async calls go here
     const firestore = getFirestore();
     firestore
       .collection("devices")
@@ -38,7 +37,6 @@ export const createDevice: any = (device: DeviceState) => {
 
 export const createSite: any = (site: SiteType) => {
   return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
-    // async calls go here
     const firestore = getFirestore();
     firestore
       .collection("sites")
@@ -49,6 +47,22 @@ export const createSite: any = (site: SiteType) => {
       .catch((e: any) => {
         console.error(e);
         dispatch({ type: "ERROR", message: "Could not create site" });
+      });
+  };
+};
+
+export const createPolicy: any = (policy: PolicyType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("policies")
+      .add(policy)
+      .then(() => {
+        dispatch({ type: "CREATE_POLICY", policy });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: "Could not create policy" });
       });
   };
 };
@@ -71,6 +85,7 @@ export const deleteDevice: any = (id: string) => {
 };
 
 export const deleteSite: any = (id: string) => {
+  // TODO: Ensure that the site does not belong to any policies before deleting
   return (dispatch: any, getState: any, { getFirestore }: any) => {
     const firestore = getFirestore();
     return firestore
@@ -83,6 +98,23 @@ export const deleteSite: any = (id: string) => {
       .catch((e: any) => {
         console.error(e);
         dispatch({ type: "ERROR", message: "Could not delete site" });
+      });
+  };
+};
+
+export const deletePolicy: any = (id: string) => {
+  return (dispatch: any, getState: any, { getFirestore }: any) => {
+    const firestore = getFirestore();
+    return firestore
+      .collection("policies")
+      .doc(id)
+      .delete()
+      .then(() => {
+        dispatch({ type: "DELETE_POLICY", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: "Could not delete policy" });
       });
   };
 };

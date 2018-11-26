@@ -18,6 +18,10 @@ const systemReducer = (state = initState, action: Action) => {
       return state;
     case "DELETE_SITE":
       return state;
+    case "CREATE_POLICY":
+      return state;
+    case "DELETE_POLICY":
+      return state;
     case "ERROR":
       console.log(action.message);
     default:

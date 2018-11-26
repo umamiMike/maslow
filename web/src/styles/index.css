@@ -2,6 +2,10 @@
 @tailwind utilities;
 /* Your custom CSS here */
 
+a {
+  color: inherit;
+}
+
 @font-face {
   font-family: "CaptainIcon";
   src: url("./fonts/captainicon.eot?-1i2a56");

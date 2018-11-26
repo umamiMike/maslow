@@ -1,50 +1,59 @@
 import React, { Component } from "react";
-import { createSite } from "./store/systemActions";
-import { SiteType } from "./interfaces";
+import { createPolicy } from "./store/systemActions";
+import { OptionType, PolicyType, SiteDict } from "./interfaces";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
+import { compose } from "redux";
+import { firestoreConnect } from "react-redux-firebase";
 import InputField from "./InputField";
 import DropdownIcon from "./DropdownIcon";
 import ArrayInput from "./ArrayInput";
 
 interface Props {
-  createSite: any; // fixme
+  createPolicy: any; // fixme
   auth: any; // fixme
+  siteDict: SiteDict;
 }
 
-class CreateSite extends Component<Props, SiteType> {
-  state: SiteType = {
+class CreatePolicy extends Component<Props, PolicyType> {
+  state: PolicyType = {
     name: "",
     description: "",
-    addresses: [""],
+    siteIds: [""],
     icon: "icon-001"
   };
 
   handleChange = (e: any) => {
     let value = e.target.value as string;
-    let target = e.target.id as string;
+    let fieldName = e.target.id as string;
     let index = null;
-    if (target.indexOf(":") !== -1) {
-      [target, index] = target.split(":");
+    if (fieldName.indexOf(":") !== -1) {
+      [fieldName, index] = fieldName.split(":"); // FIXME: not index
     }
-    if (target === "addresses") {
-      const addresses = [...this.state.addresses];
-      addresses[parseInt(index as string, 10)] = value;
-      this.setState({ addresses });
+    if (fieldName === "siteIds") {
+      const siteIds = [...this.state.siteIds];
+      siteIds[parseInt(index as string, 10)] = value;
+      this.setState({ siteIds });
       return;
     }
-    if (target === "name") this.setState({ name: value });
-    if (target === "description") this.setState({ description: value });
-    if (target === "icon") this.setState({ icon: value });
+    if (fieldName === "name") this.setState({ name: value });
+    if (fieldName === "description") this.setState({ description: value });
+    if (fieldName === "icon") this.setState({ icon: value });
   };
 
   handleSubmit = (e: any) => {
     e.preventDefault();
-    this.props.createSite(this.state);
+    this.props.createPolicy(this.state);
   };
 
   render() {
-    if (!this.props.auth.uid) return <Redirect to="/signin" />;
+    if (!this.props.auth.uid) return <Redirect to="/policies" />;
+    let siteChoices: OptionType[] = [];
+    if (this.props.siteDict) {
+      siteChoices = Object.keys(this.props.siteDict).map(siteId => {
+        return { value: siteId, label: this.props.siteDict[siteId].name };
+      });
+    }
     return (
       <div className="flex justify-center align-center pt-6">
         <div className="w-full max-w-md">
@@ -54,10 +63,10 @@ class CreateSite extends Component<Props, SiteType> {
           >
             <InputField
               id="name"
-              label="Site name"
+              label="Policy name"
               value={this.state.name}
               handleChange={this.handleChange}
-              placeholder="The Weather Channel"
+              placeholder="Guest"
               type="text"
             />
             <InputField
@@ -65,26 +74,26 @@ class CreateSite extends Component<Props, SiteType> {
               label="Description"
               value={this.state.description}
               handleChange={this.handleChange}
-              placeholder="A site that is funded on advertising that provides weather data"
+              placeholder="The policy that is applied to all unknown devices"
               type="text"
             />
-
             <DropdownIcon
               value={this.state.icon}
               id="icon"
               onChange={this.handleChange}
             />
             <ArrayInput
-              value={this.state.addresses}
-              id="addresses"
+              value={this.state.siteIds}
+              id="siteIds"
               onChange={this.handleChange}
+              choices={siteChoices}
             />
             <div className="flex items-center justify-between">
               <button
                 className="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="submit"
               >
-                Create site
+                Create policy
               </button>
             </div>
           </form>
@@ -96,17 +105,21 @@ class CreateSite extends Component<Props, SiteType> {
 
 const mapStateToProps = (state: any) => {
   return {
+    siteDict: state.firestore.data.sites,
     auth: state.firebase.auth
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    createSite: (site: SiteType) => dispatch(createSite(site))
+    createPolicy: (policy: PolicyType) => dispatch(createPolicy(policy))
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateSite);
+export default compose(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ),
+  firestoreConnect([{ collection: "sites" }])
+)(CreatePolicy);

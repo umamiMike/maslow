@@ -1,16 +1,12 @@
 import React from "react";
 import Select from "react-select";
 import Icon from "./Icon";
+import { OptionType } from "./interfaces";
 
 interface Props {
   id: string;
   value: string;
   onChange: (selected: any) => void;
-}
-
-interface OptionType {
-  label: string;
-  value: string;
 }
 
 function DropdownIcon(props: Props) {
@@ -19,7 +15,7 @@ function DropdownIcon(props: Props) {
     .map((_: any, index: number) => {
       const strIndex = String(index + 1);
       const value = new Array(3 - strIndex.length + 1).join("0") + strIndex;
-      return { value: `icon-${value}`, label: String(index + 1) };
+      return { value: `captainicon:icon-${value}`, label: String(index + 1) };
     });
 
   const onChange = (selectedOption: any) => {

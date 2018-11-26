@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
-import { SiteType } from "./interfaces";
-import { deleteSite } from "./store/systemActions";
+import { PolicyType, SiteDict } from "./interfaces";
+import { deletePolicy } from "./store/systemActions";
 import Icon from "./Icon";
 
 interface ParamType {
@@ -17,51 +17,61 @@ interface MatchType {
 
 interface Props {
   match: MatchType; // From React Router
-  site: SiteType;
-  deleteSite: any;
+  policy: PolicyType;
+  deletePolicy: any;
+  siteDict: SiteDict;
 }
 
 interface State {
   reload: boolean;
 }
 
-class SiteDetails extends Component<Props, State> {
+class PolicyDetails extends Component<Props, State> {
   state: State = {
     reload: false
   };
 
-  deleteSite = () => {
-    this.props.deleteSite(this.props.match.params.id);
+  deletePolicy = () => {
+    this.props.deletePolicy(this.props.match.params.id);
     this.setState({ reload: true });
   };
 
   render() {
     const id = this.props.match.params.id;
-    if (this.state.reload) return <Redirect to="/sites" />;
+    if (this.state.reload) return <Redirect to="/policy" />;
     let details = (
       <div className="container">
         <h1>Loading…</h1>
       </div>
     );
-    if (this.props.site) {
+    console.log(this.props.siteDict);
+    if (this.props.policy && this.props.siteDict) {
       details = (
         <div className="flex justify-center align-center">
           <div className="mt-4 w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
             <Icon
-              icon={this.props.site.icon}
+              icon={this.props.policy.icon}
               className="text-5xl mt-8 h-48 lg:h-auto lg:w-48 bg-blue-lightest bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
             />
             <div className="px-6 py-4">
               <div className="font-bold text-xl mb-2">
-                {this.props.site.name}
+                {this.props.policy.name}
               </div>
               <p className="text-grey-darker text-base">
-                {this.props.site.description}
+                {this.props.policy.description}
               </p>
               <div className="text-grey-darker text-base mt-4">
                 <ul>
-                  {this.props.site.addresses.map(address => (
-                    <li>{address}</li>
+                  {this.props.policy.siteIds.map(siteId => (
+                    <li key={siteId}>
+                      <div className="flex flex-row">
+                        <Icon
+                          className="mr-2"
+                          icon={this.props.siteDict[siteId].icon}
+                        />
+                        {this.props.siteDict[siteId].name}
+                      </div>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -75,7 +85,7 @@ class SiteDetails extends Component<Props, State> {
               Edit
             </button>
             <button
-              onClick={this.deleteSite}
+              onClick={this.deletePolicy}
               className="bg-red m-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Delete
@@ -96,16 +106,16 @@ class SiteDetails extends Component<Props, State> {
 // fixme
 const mapStateToProps = (state: any, ownProps: any) => {
   const id = ownProps.match.params.id;
-  const sites = state.firestore.data.sites;
-  const site = sites ? sites[id] : null;
-  return { site };
+  const policies = state.firestore.data.policies;
+  const policy = policies ? policies[id] : null;
+  return { policy, siteDict: state.firestore.data.sites };
 };
 
 type DispatchFunction = (f: any) => void;
 
 const mapDispatchToProps = (dispatch: DispatchFunction) => {
   return {
-    deleteSite: (id: string) => dispatch(deleteSite(id))
+    deletePolicy: (id: string) => dispatch(deletePolicy(id))
   };
 };
 
@@ -115,5 +125,6 @@ export default compose(
     mapStateToProps,
     mapDispatchToProps
   ),
+  firestoreConnect([{ collection: "policies" }]),
   firestoreConnect([{ collection: "sites" }])
-)(SiteDetails);
+)(PolicyDetails);

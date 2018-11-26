@@ -24,7 +24,7 @@ interface State {
   reload: boolean;
 }
 
-class ProjectDetails extends Component<Props, State> {
+class DeviceDetails extends Component<Props, State> {
   state: State = {
     reload: false
   };
@@ -115,7 +115,7 @@ class ProjectDetails extends Component<Props, State> {
     }
 
     return (
-      <div className="container section project-details">
+      <div className="container section">
         <div className="card z-depth-0">{details}</div>
       </div>
     );
@@ -124,7 +124,6 @@ class ProjectDetails extends Component<Props, State> {
 
 // fixme
 const mapStateToProps = (state: any, ownProps: any) => {
-  console.log({ state });
   const id = ownProps.match.params.id;
   const devices = state.firestore.data.devices;
   const device = devices ? devices[id] : null;
@@ -146,4 +145,4 @@ export default compose(
     mapDispatchToProps
   ),
   firestoreConnect([{ collection: "devices" }])
-)(ProjectDetails);
+)(DeviceDetails);

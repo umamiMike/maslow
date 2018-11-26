@@ -4,7 +4,7 @@ import DeviceSummary from "./DeviceSummary";
 import { DeviceState } from "./interfaces";
 import NewButton from "./NewButton";
 
-const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
+const DeviceList = ({ devices }: { devices: DeviceState[] }) => {
   const summaries =
     devices &&
     devices.map(device => {
@@ -27,4 +27,4 @@ const ProjectList = ({ devices }: { devices: DeviceState[] }) => {
   );
 };
 
-export default ProjectList;
+export default DeviceList;
