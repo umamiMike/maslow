@@ -5,7 +5,6 @@ EXTLDFLAGS=-static
 LDFLAGS=-linkmode external -extldflags "$(EXTLDFLAGS)"
 
 
-
 build-dev:
 	go build -o ./builds/dev
 build-wrt:
