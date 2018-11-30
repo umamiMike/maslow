@@ -48,6 +48,18 @@ export interface UserType {
   password?: string;
 }
 
+interface TimestampType {
+  seconds: number;
+  nanoseconds: number;
+}
+
+export interface NotificationsType {
+  id: string;
+  message: string;
+  time: TimestampType;
+  acknowledged?: boolean;
+}
+
 export interface UserDict {
   [index: string]: UserType;
 }

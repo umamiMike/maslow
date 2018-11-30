@@ -36,7 +36,6 @@ const mapDispatchToProps = (dispatch: DispatchFunction) => {
   return {};
 };
 
-// fixme
 export default compose(
   connect(
     mapStateToProps,
