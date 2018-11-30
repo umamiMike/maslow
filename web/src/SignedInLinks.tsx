@@ -7,6 +7,7 @@ import Gravatar from "react-gravatar";
 
 interface Props {
   profile: UserType;
+  signOut: () => void;
 }
 
 const SignedInLinks = (props: Props) => {
@@ -20,7 +21,7 @@ const SignedInLinks = (props: Props) => {
         <div className="border-grey-dark border-solid border-l mr-12" />
         <button
           className="no-underline block mt-4 lg:inline-block lg:mt-0 text-yellow-darkest hover:text-white mr-4"
-          onClick={signOut}
+          onClick={props.signOut}
         >
           Log Out
         </button>
