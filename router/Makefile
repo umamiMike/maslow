@@ -6,14 +6,18 @@ LDFLAGS=-linkmode external -extldflags "$(EXTLDFLAGS)"
 
 
 
-build-dev:
+build-dev: create-build-dir
 	go build -o ./builds/dev
-build-wrt:
+build-wrt: create-build-dir
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 CC=$(CC) go build  -tags netgo -a -v  -o ./builds/$(BINNAME) 
-deploy-wrt: deploy-wrt
+deploy-wrt: build-wrt
 	@bash ../secrets/env.sh
 	@cat ../secrets/env.sh
 	@echo $$ROUTER
 	@scp ./builds/$(BINNAME)  $$ROUTER:~/
-clean:
-	rm -rf ./builds/*
+clean: 
+	@echo removing build directory
+	@rm -rf ./builds/
+create-build-dir: 
+	@echo creating build directory 
+	mkdir ./builds
