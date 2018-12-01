@@ -2,6 +2,7 @@ import React from "react";
 import Card from "./components/Card";
 import { connect } from "react-redux";
 import { compose } from "redux";
+import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 import { firestoreConnect } from "react-redux-firebase";
 import { NotificationsType } from "./interfaces";
 
@@ -12,14 +13,16 @@ interface Props {
 const Notifications = (props: Props) => {
   if (props.notifications == null) return null;
   const notifications = props.notifications.map(notification => {
-    const time =
-      notification.time &&
-      notification.time.seconds &&
-      new Date(notification.time.seconds * 1000);
+    let time;
+    if (notification.time && notification.time.seconds) {
+      time = distanceInWordsToNow(new Date(notification.time.seconds * 1000), {
+        addSuffix: true
+      });
+    }
     return (
       <Card key={notification.id} title="">
         <p className="text-grey-darker text-base">{notification.message}</p>
-        <p className="text-grey-dark text-base">{time.toLocaleString()}</p>
+        <p className="text-grey-dark text-base">{time}</p>
       </Card>
     );
   });
