@@ -2,6 +2,7 @@ package main
 
 import (
 	firebase "firebase.google.com/go"
+	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	"log"
@@ -25,10 +26,12 @@ func makeConnectionAndAddSite(d map[string]interface{}) string {
 		log.Fatal(err)
 	}
 	defer client.Close()
-	_, _, err = client.Collection("users").Add(ctx, d)
+	//trying to read the docref etc...
+	docref, _, err = client.Collection("users").Add(ctx, d)
 	if err != nil {
 		log.Fatal(err)
 		return "failure"
 	}
+	fmt.Println(&docref)
 	return "success"
 }

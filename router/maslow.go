@@ -33,7 +33,7 @@ var addsite = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		data := map[string]interface{}{
-			"first": "Nada",
+			"first": args[0],
 			"last":  "Surf",
 			"born":  2045,
 		}
