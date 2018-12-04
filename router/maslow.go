@@ -31,7 +31,10 @@ var addsite = &cobra.Command{
 	Use:   "addsite",
 	Short: "add a site to db",
 	Run: func(cmd *cobra.Command, args []string) {
-
+		if len(args) < 1 {
+			fmt.Println("must supply at least one command")
+			return
+		}
 		data := map[string]interface{}{
 			"first": args[0],
 			"last":  "Surf",

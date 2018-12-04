@@ -2,12 +2,11 @@ package main
 
 import (
 	firebase "firebase.google.com/go"
-	"fmt"
+	//"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	"log"
 	//"firebase.google.com/go/auth"
-	//"fmt"
 )
 
 var config = &firebase.Config{
@@ -27,11 +26,10 @@ func makeConnectionAndAddSite(d map[string]interface{}) string {
 	}
 	defer client.Close()
 	//trying to read the docref etc...
-	docref, _, err = client.Collection("users").Add(ctx, d)
+	_, err = client.Collection("users").Doc("ladyada").Set(ctx, d)
 	if err != nil {
 		log.Fatal(err)
 		return "failure"
 	}
-	fmt.Println(&docref)
 	return "success"
 }
