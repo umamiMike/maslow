@@ -50,5 +50,5 @@ export default compose(
     mapStateToProps,
     mapDispatchToProps
   ),
-  firestoreConnect([{ collection: "notifications" }])
+  firestoreConnect([{ collection: "notifications", orderBy: ["time", "desc"] }])
 )(Notifications);

@@ -52,7 +52,7 @@ const mapStateToProps = (state: any) => {
 // FIXME
 export default compose(
   connect(mapStateToProps),
-  firestoreConnect([{ collection: "devices" }]),
+  firestoreConnect([{ collection: "devices", orderBy: ["name"] }]),
   firestoreConnect([{ collection: "users" }]),
   firestoreConnect([{ collection: "policies" }])
 )(Dashboard);
