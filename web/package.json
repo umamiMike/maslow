@@ -3,28 +3,37 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/blueimp-md5": "^2.7.0",
     "@types/jest": "23.3.9",
     "@types/node": "10.12.10",
     "@types/react": "16.7.6",
     "@types/react-dom": "16.0.9",
+    "@types/react-gravatar": "^2.6.5",
     "@types/react-redux": "^6.0.10",
     "@types/react-router-dom": "^4.3.1",
+    "@types/react-select": "^2.0.8",
+    "blueimp-md5": "^2.10.0",
+    "date-fns": "^1.29.0",
     "firebase": "^5.5.9",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
+    "react-gravatar": "^2.6.3",
     "react-redux": "^5.1.1",
     "react-redux-firebase": "^2.2.3",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.1",
+    "react-select": "^2.1.2",
     "redux": "^4.0.1",
     "redux-firestore": "^0.6.0",
     "redux-thunk": "^2.3.0",
     "typescript": "3.1.6"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "build:css": "postcss src/styles/index.css -o src/index.css",
+    "watch:css": "postcss src/styles/index.css -o src/index.css -w",
+    "start": "npm run watch:css & react-scripts start",
+    "build": "npm run build:css && react-scripts build",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -35,5 +44,10 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "autoprefixer": "^9.3.1",
+    "postcss-cli": "^6.0.1",
+    "tailwindcss": "^0.7.2"
+  }
 }
