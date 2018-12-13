@@ -1,4 +1,5 @@
-import { AuthState, User } from "../interfaces";
+import { AuthState, UserType } from "../interfaces";
+import md5 from "blueimp-md5";
 
 // fixme typings
 export const signIn = (credentials: AuthState) => {
@@ -37,7 +38,7 @@ export const signOut = () => {
   };
 };
 
-export const signUp = (newUser: User) => {
+export const signUp = (newUser: UserType) => {
   return (
     dispatch: any,
     getState: any,
@@ -54,7 +55,8 @@ export const signUp = (newUser: User) => {
           .doc(response.user.uid)
           .set({
             firstName: newUser.firstName,
-            lastName: newUser.lastName
+            lastName: newUser.lastName,
+            gravatar: md5(newUser.email.trim().toLowerCase())
           });
       })
       .then(() => {
