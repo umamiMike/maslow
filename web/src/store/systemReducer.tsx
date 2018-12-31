@@ -1,31 +1,29 @@
-import { DeviceState } from "../interfaces";
+import { DeviceType } from "../interfaces";
 
-const initState = {
-  devices: [
-    {
-      id: "1",
-      name: "glyph",
-      description: "Peter's iPhone",
-      mac: "00:50:f1:80:00:00"
-    },
-    {
-      id: "2",
-      name: "zorro",
-      description: "wireless scale",
-      mac: "dc:a9:04:76:06:c2"
-    }
-  ]
-};
+const initState = { devices: [] };
 
 interface Action {
   type: string;
-  device?: DeviceState;
+  device?: DeviceType;
   message?: any;
 }
 
 const systemReducer = (state = initState, action: Action) => {
   switch (action.type) {
     case "CREATE_DEVICE":
+      return state;
+    case "DELETE_DEVICE":
+      return state;
+    case "CREATE_SITE":
+      return state;
+    case "DELETE_SITE":
+      return state;
+    case "CREATE_POLICY":
+      return state;
+    case "DELETE_POLICY":
+      return state;
+    case "CREATE_TEMPORARY_POLICY":
+      console.log("created temporary policy");
       return state;
     case "ERROR":
       console.log(action.message);

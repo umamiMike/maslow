@@ -1,16 +1,14 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import MaslowNavLink from "./components/MaslowNavLink";
 
 const SignedOutLinks = () => {
   return (
-    <ul className="right">
-      <li>
-        <NavLink to="/signup">Sign up</NavLink>
-      </li>
-      <li>
-        <NavLink to="/signin">Log In</NavLink>
-      </li>
-    </ul>
+    <div className="w-full justify-between block flex-grow lg:flex lg:items-center lg:w-auto">
+      <div className="flex justify-end lg:flex-grow">
+        <MaslowNavLink to="/signup">Sign up</MaslowNavLink>
+        <MaslowNavLink to="/signin">Log In</MaslowNavLink>
+      </div>
+    </div>
   );
 };
 
