@@ -1,30 +1,39 @@
 ---
-language: node_js
+matrix:
+  include:
+     - language: go
+     depth: 1
 
-# sudo: required
+     version: 1.1.x
 
-cache:
-  directories:
-    - node_modules
+     email: false
 
-addons:
-  chrome: stable
+     - language: node_js
 
-before_install:
-  - cd web
+    # sudo: required
 
-install:
-  - npm install
+    cache:
+      directories:
+        - node_modules
 
-# script:
-#   - npm run lint
-#   - npm test
+    addons:
+      chrome: stable
 
-deploy:
-	provider: firebase
-  token:
-    secure: "elea3JWCXuwo/mMb9YLM5qR4ZOK+tvX3DkaRcBZ2Q5x6KoWKJCfWlKcAuZLR+z67nCw9cFHgL8SvuRRIngUcchE+dGM84x0Wm+KbwEb2NELOQcQq5tZCJYkIVmQug6FcTs8VPT0Dq0NmX2tTVPsvxoy6846XED2B51U23bp00b4GYz850Mwrpnf7uq+VkXSI2Zhg9lNizJnufEdgQRdpNo3gkLxouQnidshnqmCG89srEg62VNhtjUbKLity7C8zrwCrDofEBjDYB/g0+Zl3hGm92TMU7YNRCXTn5ju2JsfmHggUjHEgirR2vWTzT2Yh/QQuEhHefGBQCTByjxwt7qHMsyNIG/fsV09v9BDIXXK+dg2Ffk2Uxi1jqeNV4QNiWEE3yu8nW7pY6f5qvwbKm9TaFfe7W31UlWSWZ6xewzAPb1l+S/J+elch/sbNM+mOqcYI+KgVFV53COD4Ep3sDNkLootSV8kiXVd8gXH4BzI8h4BS05ii14J+V6WqbG5DHNlvrMDVPEHTruobLDkLq5KQ82SW0F0ukd/MdXEaao5Dy9RVes63x3D75hJ4fXlZIR4e3O8a+gMhiGGPkV7l9zLPASB1WAr2BYQP+t9pZPSmbegwti900oyaFzNdUxSwes37rVrhK4v7ElfKWCSi1Rz/X0B481F6J9XCHRE="
-  message: "Deploying to firebase..."
+    before_install:
+      - cd web
+
+    install:
+      - npm install
+
+    # script:
+    #   - npm run lint
+    #   - npm test
+
+    deploy:
+            provider: firebase
+      token:
+        secure: "elea3JWCXuwo/mMb9YLM5qR4ZOK+tvX3DkaRcBZ2Q5x6KoWKJCfWlKcAuZLR+z67nCw9cFHgL8SvuRRIngUcchE+dGM84x0Wm+KbwEb2NELOQcQq5tZCJYkIVmQug6FcTs8VPT0Dq0NmX2tTVPsvxoy6846XED2B51U23bp00b4GYz850Mwrpnf7uq+VkXSI2Zhg9lNizJnufEdgQRdpNo3gkLxouQnidshnqmCG89srEg62VNhtjUbKLity7C8zrwCrDofEBjDYB/g0+Zl3hGm92TMU7YNRCXTn5ju2JsfmHggUjHEgirR2vWTzT2Yh/QQuEhHefGBQCTByjxwt7qHMsyNIG/fsV09v9BDIXXK+dg2Ffk2Uxi1jqeNV4QNiWEE3yu8nW7pY6f5qvwbKm9TaFfe7W31UlWSWZ6xewzAPb1l+S/J+elch/sbNM+mOqcYI+KgVFV53COD4Ep3sDNkLootSV8kiXVd8gXH4BzI8h4BS05ii14J+V6WqbG5DHNlvrMDVPEHTruobLDkLq5KQ82SW0F0ukd/MdXEaao5Dy9RVes63x3D75hJ4fXlZIR4e3O8a+gMhiGGPkV7l9zLPASB1WAr2BYQP+t9pZPSmbegwti900oyaFzNdUxSwes37rVrhK4v7ElfKWCSi1Rz/X0B481F6J9XCHRE="
+      message: "Deploying to firebase..."
 
 # notifications:
 #   email: false
