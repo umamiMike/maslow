@@ -43,7 +43,6 @@ var addsite = &cobra.Command{
 
 		message := makeConnectionAndAddSite(data)
 		fmt.Println(message)
-
 	},
 }
 

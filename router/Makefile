@@ -4,8 +4,6 @@ BINNAME=router_service
 EXTLDFLAGS=-static
 LDFLAGS=-linkmode external -extldflags "$(EXTLDFLAGS)"
 
-
-
 build-dev: 
 	@rm -f ./builds/dev
 	go build -o ./builds/dev
