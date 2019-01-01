@@ -29,8 +29,6 @@ var parseLeases = &cobra.Command{
 }
 
 // Write script that scans dnsmasq.log output and builds a dictionary of names and IP addresses
-//currently log to stdout
-//used by iptables writing command
 var parseDNS = &cobra.Command{
 	Use:   "parse-dns",
 	Short: "Parse the system dnsmasq.log file and write to stdout",
@@ -43,9 +41,23 @@ var parseDNS = &cobra.Command{
 	},
 }
 
+// Pull down all values from the following collections: "devices", "policies",
+// "sites", "temporaryPolicies" and construct a map of slices {macAddress:
+// [regex...]}
+var pullRules = &cobra.Command{
+	Use:   "pull-rules",
+	Short: "Pull all relevant rules from firebase collections",
+	Run: func(cmd *cobra.Command, args []string) {
+		devicesList := devicePolicyList{}
+		devicesList.get()
+		fmt.Println("Not yet implemented.")
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(parseLeases)
 	rootCmd.AddCommand(parseDNS)
+	rootCmd.AddCommand(pullRules)
 	rootCmd.Execute()
 
 }
