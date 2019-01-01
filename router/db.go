@@ -1,35 +1,38 @@
 package main
 
 import (
+	"log"
+
 	firebase "firebase.google.com/go"
-	//"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
-	"log"
-	//"firebase.google.com/go/auth"
 )
 
-var config = &firebase.Config{
-	DatabaseURL: "https://maslow-test.firebaseio.com",
-}
+var config = &firebase.Config{}
 
-func makeConnectionAndAddSite(d map[string]interface{}) string {
+func (h *Host) add(collection_name string) error {
 	ctx := context.Background()
-	opt := option.WithCredentialsFile("../secrets/maslow-test-firebase-adminsdk-dhcpw-61989a0f5b.json")
+	opt := option.WithCredentialsFile("./secrets/maslow-2de90-firebase-adminsdk-10ing-d37ed58f69.json")
 	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
+		return err
 	}
 	client, err := app.Firestore(ctx)
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 	defer client.Close()
 	//trying to read the docref etc...
-	_, err = client.Collection("users").Doc("ladyada").Set(ctx, d)
+	if err != nil {
+		log.Fatal("Could not marshal struct to JSON")
+		return err
+	}
+	_, err = client.Collection(collection_name).Doc(h.mac).Set(ctx, h)
 	if err != nil {
 		log.Fatal(err)
-		return "failure"
+		return err
 	}
-	return "success"
+	return nil
 }
