@@ -14,7 +14,7 @@ type host struct {
 	IP   string
 }
 
-func readln(r *bufio.Reader) (host, error) {
+func readLn(r *bufio.Reader) (string, error) {
 	var (
 		isPrefix = true
 		err      error
@@ -25,9 +25,9 @@ func readln(r *bufio.Reader) (host, error) {
 		ln = append(ln, line...)
 	}
 	if err != nil {
-		return host{}, err
+		return "", err
 	}
-	return parseMasq(string(ln))
+	return string(ln), nil
 }
 
 func parseMasq(s string) (host, error) {
@@ -39,7 +39,7 @@ func parseMasq(s string) (host, error) {
 	return output, nil
 }
 
-func readAndParse(filename string) {
+func readAndParseLeases(filename string) {
 	// Read the contents of dnsmasq.leases
 	f, err := os.Open(filename)
 	if err != nil {
@@ -47,10 +47,15 @@ func readAndParse(filename string) {
 		os.Exit(1)
 	}
 	r := bufio.NewReader(f)
-	host, e := readln(r)
+	leaseLine, e := readLn(r)
 	for e == nil {
+		host, err := parseMasq(leaseLine)
+		if err != nil {
+			fmt.Printf("error parsing leaselines: %v\n", leaseLine)
+			os.Exit(1)
+		}
 		host.add("devices")
 		fmt.Println(host.Name)
-		host, e = readln(r)
+		leaseLine, e = readLn(r)
 	}
 }
