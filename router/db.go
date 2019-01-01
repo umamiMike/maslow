@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	firebase "firebase.google.com/go"
 	"golang.org/x/net/context"
@@ -10,9 +11,9 @@ import (
 
 var config = &firebase.Config{}
 
-func (h *Host) add(collection_name string) error {
+func (h *host) add(collectionName string) error {
 	ctx := context.Background()
-	opt := option.WithCredentialsFile("./secrets/maslow-2de90-firebase-adminsdk-10ing-d37ed58f69.json")
+	opt := option.WithCredentialsFile(os.Getenv("SECRET_FILE"))
 	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
@@ -29,7 +30,12 @@ func (h *Host) add(collection_name string) error {
 		log.Fatal("Could not marshal struct to JSON")
 		return err
 	}
-	_, err = client.Collection(collection_name).Doc(h.mac).Set(ctx, h)
+	_, err = client.Collection(collectionName).Doc(h.Mac).Set(ctx, map[string]interface{}{
+
+		"ip":   h.IP,
+		"mac":  h.Mac,
+		"name": h.Name,
+	})
 	if err != nil {
 		log.Fatal(err)
 		return err

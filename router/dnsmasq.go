@@ -8,16 +8,16 @@ import (
 	"strings"
 )
 
-type Host struct {
-	name string `json: "name"`
-	mac  string `json: "mac"`
-	Ip   string `json: "ip"`
+type host struct {
+	Name string
+	Mac  string
+	IP   string
 }
 
-func readln(r *bufio.Reader) (Host, error) {
+func readln(r *bufio.Reader) (host, error) {
 	var (
-		isPrefix bool  = true
-		err      error = nil
+		isPrefix = true
+		err      error
 		line, ln []byte
 	)
 	for isPrefix && err == nil {
@@ -25,21 +25,21 @@ func readln(r *bufio.Reader) (Host, error) {
 		ln = append(ln, line...)
 	}
 	if err != nil {
-		return Host{}, err
+		return host{}, err
 	}
 	return parseMasq(string(ln))
 }
 
-func parseMasq(s string) (Host, error) {
+func parseMasq(s string) (host, error) {
 	splitstr := strings.Split(s, " ")
 	if len(splitstr) != 5 {
-		return Host{}, errors.New("whoops")
+		return host{}, errors.New("whoops")
 	}
-	output := Host{splitstr[3], splitstr[1], splitstr[2]}
+	output := host{splitstr[3], splitstr[1], splitstr[2]}
 	return output, nil
 }
 
-func ReadAndParse(filename string) {
+func readAndParse(filename string) {
 	// Read the contents of dnsmasq.leases
 	f, err := os.Open(filename)
 	if err != nil {
@@ -50,7 +50,7 @@ func ReadAndParse(filename string) {
 	host, e := readln(r)
 	for e == nil {
 		host.add("devices")
-		fmt.Println(host.name)
+		fmt.Println(host.Name)
 		host, e = readln(r)
 	}
 }
