@@ -39,6 +39,47 @@ func parseMasq(s string) (host, error) {
 	return output, nil
 }
 
+func parseLog(s string) (string, string, error) {
+	splitstr := strings.Split(s, ": ")
+	if len(splitstr) != 2 {
+		return "", "", errors.New("Unreadable line")
+	}
+	dataStr := splitstr[1]
+	splitStr2 := strings.Split(dataStr, " ")
+	if splitStr2[0] != "reply" {
+		return "", "", nil
+	}
+	// TODO: Deal properly with CNAMEs?
+	if splitStr2[3] == "<CNAME>" {
+		return "", "", nil
+	}
+	return splitStr2[1], splitStr2[3], nil
+}
+
+func readAndParseDNS(filename string) {
+	f, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("error opening file: %v\n", err)
+		os.Exit(1)
+	}
+	r := bufio.NewReader(f)
+	output := make(map[string][]string)
+
+	logLine, e := readLn(r)
+	for e == nil {
+		key, value, err := parseLog(logLine)
+		if err != nil {
+			fmt.Printf("error parsing leaselines: %v\n", logLine)
+			os.Exit(1)
+		}
+		if key != "" {
+			output[key] = append(output[key], value)
+		}
+		logLine, e = readLn(r)
+	}
+	fmt.Println(output)
+}
+
 func readAndParseLeases(filename string) {
 	// Read the contents of dnsmasq.leases
 	f, err := os.Open(filename)
