@@ -53,7 +53,9 @@ func parseLog(s string) (string, string, error) {
 	if splitStr2[3] == "<CNAME>" {
 		return "", "", nil
 	}
-	return splitStr2[1], splitStr2[3], nil
+	name := strings.Replace(splitStr2[1], "\"", "", -1)
+	iPAddress := splitStr2[3]
+	return name, iPAddress, nil
 }
 
 func readAndParseDNS(filename string) (map[string][]string, error) {
@@ -68,24 +70,22 @@ func readAndParseDNS(filename string) (map[string][]string, error) {
 	logLine, e := readLn(r)
 	for e == nil {
 		key, value, err := parseLog(logLine)
-		if err != nil {
-			fmt.Printf("error parsing leaselines: %v\n", logLine)
-			return nil, err
-		}
-		if key != "" {
-			output[key] = append(output[key], value)
+		if err == nil {
+			if key != "" {
+				output[key] = append(output[key], value)
+			}
 		}
 		logLine, e = readLn(r)
 	}
 	return output, nil
 }
 
-func readAndParseLeases(filename string) {
-	// Read the contents of dnsmasq.leases
+func readAndParseLeases(filename string) (map[string]host, error) {
+	output := make(map[string]host)
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 	r := bufio.NewReader(f)
 	leaseLine, e := readLn(r)
@@ -93,10 +93,10 @@ func readAndParseLeases(filename string) {
 		host, err := parseMasq(leaseLine)
 		if err != nil {
 			fmt.Printf("error parsing leaselines: %v\n", leaseLine)
-			os.Exit(1)
+			continue
 		}
-		host.add("devices")
-		fmt.Println(host.Name)
+		output[host.Mac] = host
 		leaseLine, e = readLn(r)
 	}
+	return output, nil
 }

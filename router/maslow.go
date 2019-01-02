@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
 )
 
@@ -23,9 +25,17 @@ var parseLeases = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("must supply the path to the dnsmasq.leases file")
-			return
+			os.Exit(1)
 		}
-		readAndParseLeases(args[0])
+		hostMap, err := readAndParseLeases(args[0])
+		if err != nil {
+			log.Fatal("error parsing leases\n", err)
+			os.Exit(1)
+		}
+		for _, host := range hostMap {
+			host.add("devices")
+			fmt.Println(">> ", host.Name, host.IP, host.Mac)
+		}
 	},
 }
 
@@ -36,7 +46,7 @@ var parseDNS = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("must supply the path to the dnsmasq.log file")
-			return
+			os.Exit(1)
 		}
 		dnsMap, err := readAndParseDNS(args[0])
 		if err == nil {
@@ -52,9 +62,11 @@ var pullRules = &cobra.Command{
 	Use:   "pull-rules",
 	Short: "Pull all relevant rules from firebase collections",
 	Run: func(cmd *cobra.Command, args []string) {
-		devicePolicies, error := getDevicePolicies()
-		if error == nil {
-			spew.Dump(devicePolicies)
+		devicePolicies, err := getDevicePolicies()
+		if err == nil {
+			for key, value := range devicePolicies {
+				fmt.Println(key, value)
+			}
 		}
 	},
 }
@@ -63,11 +75,33 @@ var iptables = &cobra.Command{
 	Use:   "iptables",
 	Short: "Generate IPTables rules for this router",
 	Run: func(cmd *cobra.Command, args []string) {
-		devicePolicies, error := getDevicePolicies()
-		if error == nil {
-			spew.Dump(devicePolicies)
+		if len(args) < 2 {
+			fmt.Println("must supply the path to the dnsmasq.log AND dnsmasq.leases files")
+			os.Exit(1)
 		}
-		readAndParseDNS(args[0])
+		fmt.Println("Parsing lease data...")
+		hostMap, err := readAndParseLeases(args[1])
+		if err != nil {
+			log.Fatal("error parsing lease data\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("Parsing DNS data...")
+		dnsMap, err := readAndParseDNS(args[0])
+		if err != nil {
+			log.Fatal("error parsing dns data\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("Downloading policies...")
+		devicePolicies, err := getDevicePolicies()
+		if err != nil {
+			log.Fatal("error downloading policies\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("Generating iptables rules...")
+		whitelist := generateWhitelist(dnsMap, hostMap, devicePolicies)
+		rules := makeIPTablesRules(whitelist)
+		fmt.Println(strings.Join(rules, "\n"))
+		executeBatch(rules)
 	},
 }
 
@@ -75,6 +109,7 @@ func init() {
 	rootCmd.AddCommand(parseLeases)
 	rootCmd.AddCommand(parseDNS)
 	rootCmd.AddCommand(pullRules)
+	rootCmd.AddCommand(iptables)
 	rootCmd.Execute()
 
 }

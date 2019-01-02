@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strings"
 
 	firebase "firebase.google.com/go"
 	"golang.org/x/net/context"
@@ -19,7 +20,7 @@ func (h *host) add(collectionName string) error {
 	opt := option.WithCredentialsFile(os.Getenv("SECRET_FILE"))
 	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
+		log.Fatal("error initializing app:", err)
 		return err
 	}
 	client, err := app.Firestore(ctx)
@@ -94,7 +95,8 @@ func getDevicePolicies() (devicePolicyMap, error) {
 					log.Fatal("could not find site...")
 					break
 				}
-				output[macAddress] = append(output[macAddress], convertToSlice(site.Data()["addresses"])...)
+				newAddresses := convertToSlice(site.Data()["addresses"])
+				output[macAddress] = append(output[macAddress], newAddresses...)
 			}
 		}
 	}
@@ -108,8 +110,8 @@ func convertToSlice(t interface{}) []string {
 
 		output := make([]string, 0, s.Len())
 		for i := 0; i < s.Len(); i++ {
-			siteID := s.Index(i)
-			output = append(output, fmt.Sprint(siteID))
+			value := strings.Replace(fmt.Sprint(s.Index(i)), "\"", "", -1)
+			output = append(output, value)
 		}
 		return output
 	}
