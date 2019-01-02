@@ -56,11 +56,11 @@ func parseLog(s string) (string, string, error) {
 	return splitStr2[1], splitStr2[3], nil
 }
 
-func readAndParseDNS(filename string) {
+func readAndParseDNS(filename string) (map[string][]string, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 	r := bufio.NewReader(f)
 	output := make(map[string][]string)
@@ -70,14 +70,14 @@ func readAndParseDNS(filename string) {
 		key, value, err := parseLog(logLine)
 		if err != nil {
 			fmt.Printf("error parsing leaselines: %v\n", logLine)
-			os.Exit(1)
+			return nil, err
 		}
 		if key != "" {
 			output[key] = append(output[key], value)
 		}
 		logLine, e = readLn(r)
 	}
-	fmt.Println(output)
+	return output, nil
 }
 
 func readAndParseLeases(filename string) {

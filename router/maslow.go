@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +38,10 @@ var parseDNS = &cobra.Command{
 			fmt.Println("must supply the path to the dnsmasq.log file")
 			return
 		}
-		readAndParseDNS(args[0])
+		dnsMap, err := readAndParseDNS(args[0])
+		if err == nil {
+			fmt.Println(dnsMap)
+		}
 	},
 }
 
@@ -48,9 +52,22 @@ var pullRules = &cobra.Command{
 	Use:   "pull-rules",
 	Short: "Pull all relevant rules from firebase collections",
 	Run: func(cmd *cobra.Command, args []string) {
-		devicesList := devicePolicyList{}
-		devicesList.get()
-		fmt.Println("Not yet implemented.")
+		devicePolicies, error := getDevicePolicies()
+		if error == nil {
+			spew.Dump(devicePolicies)
+		}
+	},
+}
+
+var iptables = &cobra.Command{
+	Use:   "iptables",
+	Short: "Generate IPTables rules for this router",
+	Run: func(cmd *cobra.Command, args []string) {
+		devicePolicies, error := getDevicePolicies()
+		if error == nil {
+			spew.Dump(devicePolicies)
+		}
+		readAndParseDNS(args[0])
 	},
 }
 
