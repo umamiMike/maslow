@@ -52,6 +52,7 @@ Oct  4 22:22:49 dnsmasq[2278]: reply endpoint.prod.us-east-1.forester.a2z.com is
 Oct  4 22:22:49 dnsmasq[2278]: reply endpoint.prod.us-east-1.forester.a2z.com is 18.214.91.159
 Oct  4 22:22:49 dnsmasq[2278]: reply endpoint.prod.us-east-1.forester.a2z.com is 18.204.65.194
 Oct  4 22:23:05 dnsmasq[2278]: query[A] asimov.vortex.data.microsoft.com.akadns.net from 192.168.1.141
+Oct  4 22:22:49 dnsmasq[2278]: reply www.weather.com is 99.99.99.99
 Oct  4 22:23:05 dnsmasq[2278]: forwarded asimov.vortex.data.microsoft.com.akadns.net to 75.75.75.75
 Oct  4 22:23:05 dnsmasq[2278]: reply asimov.vortex.data.microsoft.com.akadns.net is <CNAME>
 Oct  4 22:23:05 dnsmasq[2278]: reply geo.vortex.data.microsoft.com.akadns.net is <CNAME>
