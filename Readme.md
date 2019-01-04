@@ -32,6 +32,17 @@ that they are spending their time wisely.
 
 ## Set up the router
 
+you will have to generate a secret.json file from firebase.
+
+```
+opkg install ca-certificates
+cat > .bash_profile << EOF
+export SECRET_FILE=/tmp/root/secrets/maslow-service-credentials.json
+export SSL_CERT_DIR=/opt/etc/ssl/certs
+EOF
+root@speck:~# ./router_service parse-leases /tmp/dnsmasq.leases
+```
+
 ```
 umount /dev/sda1
 mount /dev/sda1 /opt
