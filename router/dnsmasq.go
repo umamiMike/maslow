@@ -15,7 +15,7 @@ type host struct {
 }
 
 func parseMasq(s string) (host, error) {
-	fmt.Println("inside parseMasq")
+
 	splitstr := strings.Split(s, " ")
 	if len(splitstr) != 5 {
 		return host{}, errors.New("whoops")
@@ -24,23 +24,21 @@ func parseMasq(s string) (host, error) {
 	return output, nil
 }
 func readAndParseLeases(filename string) (map[string]host, error) {
-	fmt.Println("about tot read and Parse Leases")
 	output := make(map[string]host)
-	f, err := os.Open(filename)
+	q, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
 		return nil, err
 	}
-	r := bufio.NewReader(f)
-	leaseLine, e := readLn(r)
-	for e == nil {
-		host, err := parseMasq(leaseLine)
+	leasefile := bufio.NewScanner(q)
+	for leasefile.Scan() {
+		host, err := parseMasq(leasefile.Text())
 		if err != nil {
-			fmt.Printf("error parsing leaselines: %v\n", leaseLine)
+			fmt.Printf("error parsing leaselines: %v\n", leasefile.Text())
 			continue
 		}
 		output[host.Mac] = host
-		leaseLine, e = readLn(r)
 	}
+	q.Close()
 	return output, nil
 }

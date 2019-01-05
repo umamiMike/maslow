@@ -46,5 +46,6 @@ func readAndParseDNS(filename string) (map[string][]string, error) {
 		}
 		logLine, e = readLn(r)
 	}
+	g.Close()
 	return output, nil
 }
