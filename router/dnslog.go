@@ -28,23 +28,22 @@ func parseLog(s string) (string, string, error) {
 }
 
 func readAndParseDNS(filename string) (map[string][]string, error) {
-	f, err := os.Open(filename)
+	g, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
 		return nil, err
 	}
-	r := bufio.NewReader(f)
-	output := make(map[string][]string)
 
-	logLine, e := readLn(r)
-	for e == nil {
+	s := bufio.NewScanner(g)
+	output := make(map[string][]string)
+	for s.Scan() {
+		logLine := s.Text()
 		key, value, err := parseLog(logLine)
 		if err == nil {
 			if key != "" {
 				output[key] = append(output[key], value)
 			}
 		}
-		logLine, e = readLn(r)
 	}
 	g.Close()
 	return output, nil
