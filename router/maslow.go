@@ -2,16 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
-
-type policy struct {
-	Name string
-}
 
 var rootCmd = &cobra.Command{
 	Use:   "maslow",
