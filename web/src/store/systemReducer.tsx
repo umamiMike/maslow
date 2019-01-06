@@ -14,6 +14,8 @@ const systemReducer = (state = initState, action: Action) => {
       return state;
     case "DELETE_DEVICE":
       return state;
+    case "EDIT_DEVICE":
+      return state;
     case "CREATE_SITE":
       return state;
     case "DELETE_SITE":

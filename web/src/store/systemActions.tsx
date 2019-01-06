@@ -145,3 +145,20 @@ export const deletePolicy: any = (id: string) => {
       });
   };
 };
+
+export const editDevice: any = (id: string, device: DeviceType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("devices")
+      .doc(id)
+      .update(device)
+      .then(() => {
+        dispatch({ type: "EDIT_DEVICE", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: `Could not edit device ${id}` });
+      });
+  };
+};
