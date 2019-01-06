@@ -74,9 +74,7 @@ func executeBatch(commands []string) {
 		parts := strings.Split(command, " ")
 		cmd := exec.Command(ipTables, parts...)
 		err := cmd.Run()
-		if err == nil {
-			log.Printf("No errors.")
-		} else {
+		if err != nil {
 			log.Printf("Command finished with error: %v", err)
 		}
 	}
