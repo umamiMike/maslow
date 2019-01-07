@@ -16,9 +16,10 @@ interface State {
 }
 
 export default class ArrayInput extends Component<Props, State> {
-  state: State = {
-    activeInputs: 1
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = { activeInputs: props.value.length || 1 };
+  }
 
   addInput = () => {
     this.setState({ activeInputs: this.state.activeInputs + 1 });
@@ -66,6 +67,7 @@ export default class ArrayInput extends Component<Props, State> {
                 disabled={disabled}
                 onClick={this.addInput}
                 className="no-underline font-bold py-4 px-4 rounded-full"
+                type="button"
               >
                 <p className="font-icon text-blue hover:text-blue-dark icon-059" />
               </button>
