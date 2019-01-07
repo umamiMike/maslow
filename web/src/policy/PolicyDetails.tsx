@@ -80,12 +80,14 @@ class PolicyDetails extends Component<Props, State> {
             <button
               onClick={() => undefined}
               className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
               Edit
             </button>
             <button
               onClick={this.deletePolicy}
               className="bg-red m-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
               Delete
             </button>

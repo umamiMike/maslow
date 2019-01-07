@@ -70,6 +70,7 @@ export class ActionPanel extends Component<Props, State> {
                 this.state.policyDuration
               )
             }
+            type="button"
             className="bg-blue mb-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Grant access
@@ -77,6 +78,7 @@ export class ActionPanel extends Component<Props, State> {
           <button
             onClick={this.props.editDevice}
             className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="button"
           >
             Edit
           </button>
@@ -84,6 +86,7 @@ export class ActionPanel extends Component<Props, State> {
         <button
           onClick={this.props.deleteDevice}
           className="bg-red mb-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
         >
           Delete
         </button>

@@ -59,12 +59,14 @@ class SiteDetails extends Component<Props, State> {
             <button
               onClick={() => this.setState({ editing: true })}
               className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
               Edit
             </button>
             <button
               onClick={this.deleteSite}
               className="bg-red m-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
               Delete
             </button>
