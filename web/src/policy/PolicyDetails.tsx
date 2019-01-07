@@ -4,8 +4,9 @@ import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
 import { PolicyType, SiteDict } from "../interfaces";
-import { deletePolicy } from "../store/systemActions";
-import Icon from "../components/Icon";
+import { deletePolicy, editPolicy } from "../store/systemActions";
+import ExtraPolicyDetails from "./ExtraPolicyDetails";
+import EditPolicy from "./EditPolicy";
 
 interface ParamType {
   id: Number;
@@ -18,22 +19,31 @@ interface MatchType {
 interface Props {
   match: MatchType; // From React Router
   policy: PolicyType;
-  deletePolicy: any;
   siteDict: SiteDict;
+
+  deletePolicy: any;
+  editPolicy: any;
 }
 
 interface State {
+  editing: boolean;
   reload: boolean;
 }
 
 class PolicyDetails extends Component<Props, State> {
   state: State = {
+    editing: false,
     reload: false
   };
 
   deletePolicy = () => {
     this.props.deletePolicy(this.props.match.params.id);
     this.setState({ reload: true });
+  };
+
+  editPolicy = (policy: PolicyType) => {
+    this.props.editPolicy(this.props.match.params.id, policy);
+    this.setState({ editing: false });
   };
 
   render() {
@@ -44,41 +54,25 @@ class PolicyDetails extends Component<Props, State> {
         <h1>Loading…</h1>
       </div>
     );
+    const panel = this.state.editing ? (
+      <EditPolicy
+        siteDict={this.props.siteDict}
+        policy={this.props.policy}
+        handleSubmit={this.editPolicy}
+      />
+    ) : (
+      <ExtraPolicyDetails
+        policy={this.props.policy}
+        siteDict={this.props.siteDict}
+      />
+    );
     if (this.props.policy && this.props.siteDict) {
       details = (
         <div className="flex justify-center align-center">
-          <div className="mt-4 w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
-            <Icon
-              icon={this.props.policy.icon}
-              className="text-5xl mt-8 h-48 lg:h-auto lg:w-48 bg-blue-lightest bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
-            />
-            <div className="px-6 py-4">
-              <div className="font-bold text-xl mb-2">
-                {this.props.policy.name}
-              </div>
-              <p className="text-grey-darker text-base">
-                {this.props.policy.description}
-              </p>
-              <div className="text-grey-darker text-base mt-4">
-                <ul>
-                  {this.props.policy.siteIds.map(siteId => (
-                    <li key={siteId}>
-                      <div className="flex flex-row">
-                        <Icon
-                          className="mr-2"
-                          icon={this.props.siteDict[siteId].icon}
-                        />
-                        {this.props.siteDict[siteId].name}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          {panel}
           <div className="flex flex-col items-start">
             <button
-              onClick={() => undefined}
+              onClick={() => this.setState({ editing: true })}
               className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
             >
@@ -116,7 +110,9 @@ type DispatchFunction = (f: any) => void;
 
 const mapDispatchToProps = (dispatch: DispatchFunction) => {
   return {
-    deletePolicy: (id: string) => dispatch(deletePolicy(id))
+    deletePolicy: (id: string) => dispatch(deletePolicy(id)),
+    editPolicy: (id: string, policy: PolicyType) =>
+      dispatch(editPolicy(id, policy))
   };
 };
 

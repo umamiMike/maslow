@@ -179,3 +179,20 @@ export const editSite: any = (id: string, site: SiteType) => {
       });
   };
 };
+
+export const editPolicy: any = (id: string, policy: PolicyType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("policies")
+      .doc(id)
+      .update(policy)
+      .then(() => {
+        dispatch({ type: "EDIT_POLICY", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: `Could not edit policy ${id}` });
+      });
+  };
+};
