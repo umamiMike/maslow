@@ -39,7 +39,16 @@ class CreatePolicy extends Component<Props, PolicyType> {
           handleSubmit={this.handleSubmit}
           policy={this.state}
           siteOptions={siteOptions}
-        />
+        >
+          <div className="flex items-center justify-between">
+            <button
+              className="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="submit"
+            >
+              Create policy
+            </button>
+          </div>
+        </PolicyForm>
       </div>
     );
   }
