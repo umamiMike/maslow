@@ -4,8 +4,9 @@ import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
 import { SiteType } from "../interfaces";
-import { deleteSite } from "../store/systemActions";
+import { deleteSite, editSite } from "../store/systemActions";
 import ExtraDetails from "./ExtraDetails";
+import EditSite from "./EditSite";
 
 interface ParamType {
   id: Number;
@@ -19,6 +20,7 @@ interface Props {
   match: MatchType; // From React Router
   site: SiteType;
   deleteSite: any;
+  editSite: any;
 }
 
 interface State {
@@ -37,6 +39,11 @@ class SiteDetails extends Component<Props, State> {
     this.setState({ reload: true });
   };
 
+  editSite = (site: SiteType) => {
+    this.props.editSite(this.props.match.params.id, site);
+    this.setState({ editing: false });
+  };
+
   render() {
     const id = this.props.match.params.id;
     if (this.state.reload) return <Redirect to="/sites" />;
@@ -46,7 +53,7 @@ class SiteDetails extends Component<Props, State> {
       </div>
     );
     const panel = this.state.editing ? (
-      <h1>editing</h1>
+      <EditSite site={this.props.site} editSite={this.editSite} />
     ) : (
       <ExtraDetails site={this.props.site} />
     );
@@ -95,7 +102,8 @@ type DispatchFunction = (f: any) => void;
 
 const mapDispatchToProps = (dispatch: DispatchFunction) => {
   return {
-    deleteSite: (id: string) => dispatch(deleteSite(id))
+    deleteSite: (id: string) => dispatch(deleteSite(id)),
+    editSite: (id: string, site: SiteType) => dispatch(editSite(id, site))
   };
 };
 

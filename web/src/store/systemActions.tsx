@@ -162,3 +162,20 @@ export const editDevice: any = (id: string, device: DeviceType) => {
       });
   };
 };
+
+export const editSite: any = (id: string, site: SiteType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("sites")
+      .doc(id)
+      .update(site)
+      .then(() => {
+        dispatch({ type: "EDIT_SITE", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: `Could not edit site ${id}` });
+      });
+  };
+};

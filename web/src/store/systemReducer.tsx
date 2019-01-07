@@ -20,6 +20,8 @@ const systemReducer = (state = initState, action: Action) => {
       return state;
     case "DELETE_SITE":
       return state;
+    case "EDIT_SITE":
+      return state;
     case "CREATE_POLICY":
       return state;
     case "DELETE_POLICY":
