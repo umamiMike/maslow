@@ -44,12 +44,17 @@ export default class ArrayInput extends Component<Props, State> {
       });
     };
 
+    const value = this.props.options.find(
+      option => option.value === this.props.value[i]
+    );
+
     return (
       <Select
         className="w-full"
         options={this.props.options}
         onChange={selectChange}
         placeholder={this.props.placeholder}
+        value={value}
       />
     );
   };
