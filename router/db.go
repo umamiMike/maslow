@@ -5,8 +5,11 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
 
+	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"golang.org/x/net/context"
 	"google.golang.org/api/iterator"
@@ -77,10 +80,52 @@ func getDevicePolicies() (devicePolicyMap, error) {
 			// TODO: Handle error.
 		}
 		data := deviceDoc.Data()
-		defaultPolicyID := data["defaultPolicyId"]
+		policyID := ""
+		if data["defaultPolicyId"] != nil {
+			policyID = fmt.Sprint(data["defaultPolicyId"])
+		}
+
+		// if there is a temporaryPolicy
+		// policyID should equal the temporary policyID instead
+
+		// ------------------ FACTOR
+		temporaryPolicyCollection := client.Collection("temporaryPolicies")
+		deviceID := getIDFromDoc(deviceDoc)
+		tpi := temporaryPolicyCollection.Where("deviceId", "==", deviceID).Documents(ctx)
+		defer tpi.Stop()
+
+		for {
+			temporaryPolicyDoc, err := tpi.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				fmt.Println("Error reading data", err)
+			}
+			duration, err := strconv.Atoi(fmt.Sprint(temporaryPolicyDoc.Data()["duration"]))
+			if err != nil {
+				fmt.Println("duration TIME ERROR", err)
+				continue
+			}
+
+			s := fmt.Sprint(temporaryPolicyDoc.Data()["startTime"])
+			startTime, err := time.Parse("2006-01-02 15:04:05.999 -0700 MST", s)
+			if err != nil {
+				fmt.Println("start TIME ERROR", err)
+			}
+
+			endTime := startTime.Add(time.Duration(duration) * time.Second)
+			fmt.Println("endTime", endTime, "startTime", startTime)
+			if endTime.After(time.Now()) {
+				policyID = fmt.Sprint(temporaryPolicyDoc.Data()["policyId"])
+				fmt.Println("USE THIS THING", policyID)
+			}
+		}
+		// ------------------ FACTOR
+
 		macAddress := fmt.Sprint(data["mac"])
 
-		if defaultPolicyID != nil {
+		if policyID != "" {
 			defaultPolicyPath := "policies/" + fmt.Sprint(data["defaultPolicyId"])
 			policy, err := client.Doc(defaultPolicyPath).Get(ctx)
 			if err != nil {
@@ -101,6 +146,12 @@ func getDevicePolicies() (devicePolicyMap, error) {
 		}
 	}
 	return output, nil
+}
+
+func getIDFromDoc(doc *firestore.DocumentSnapshot) string {
+	pathHunks := strings.Split(fmt.Sprintf(doc.Ref.Path), "/")
+	docID := pathHunks[len(pathHunks)-1]
+	return docID
 }
 
 func convertToSlice(t interface{}) []string {
