@@ -16,6 +16,7 @@ interface Props {
 class DeviceForm extends Component<Props, DeviceType> {
   constructor(props: Props) {
     super(props);
+    const users = this.props.device.users || []
     this.state = {
       name: this.props.device.name,
       description: this.props.device.description,
@@ -23,7 +24,7 @@ class DeviceForm extends Component<Props, DeviceType> {
       manufacturer: this.props.device.manufacturer,
       model: this.props.device.model,
       defaultPolicyId: this.props.device.defaultPolicyId,
-      users: [...this.props.device.users]
+      users: [...users]
     };
   }
 
