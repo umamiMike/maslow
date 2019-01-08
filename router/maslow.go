@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
 	"log"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -93,6 +95,9 @@ var iptables = &cobra.Command{
 		log.Println("Generating iptables rules...")
 		whitelist := generateWhitelist(dnsMap, hostMap, devicePolicies)
 		rules := makeIPTablesRules(whitelist)
+		for _, rule := range rules {
+			fmt.Println(rule)
+		}
 		executeBatch(rules)
 		log.Println("rules updated")
 	},
