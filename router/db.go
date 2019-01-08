@@ -40,7 +40,7 @@ func (h *host) add(collectionName string) error {
 			"name": h.Name,
 		})
 		if err != nil {
-			log.Fatalf("unable to create %f in firestore: %v", h.Name, err)
+			log.Fatalf("unable to create %v in firestore: %v", h.Name, err)
 		}
 		return err
 	}
