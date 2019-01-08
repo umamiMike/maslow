@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
-	"cloud.google.com/go/firestore"
+	firestore "cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"golang.org/x/net/context"
 	"google.golang.org/api/iterator"
@@ -79,50 +78,8 @@ func getDevicePolicies() (devicePolicyMap, error) {
 		if err != nil {
 			// TODO: Handle error.
 		}
+		policyID := getPolicyID(ctx, deviceDoc, client)
 		data := deviceDoc.Data()
-		policyID := ""
-		if data["defaultPolicyId"] != nil {
-			policyID = fmt.Sprint(data["defaultPolicyId"])
-		}
-
-		// if there is a temporaryPolicy
-		// policyID should equal the temporary policyID instead
-
-		// ------------------ FACTOR
-		temporaryPolicyCollection := client.Collection("temporaryPolicies")
-		deviceID := getIDFromDoc(deviceDoc)
-		tpi := temporaryPolicyCollection.Where("deviceId", "==", deviceID).Documents(ctx)
-		defer tpi.Stop()
-
-		for {
-			temporaryPolicyDoc, err := tpi.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				fmt.Println("Error reading data", err)
-			}
-			duration, err := strconv.Atoi(fmt.Sprint(temporaryPolicyDoc.Data()["duration"]))
-			if err != nil {
-				fmt.Println("duration TIME ERROR", err)
-				continue
-			}
-
-			s := fmt.Sprint(temporaryPolicyDoc.Data()["startTime"])
-			startTime, err := time.Parse("2006-01-02 15:04:05.999 -0700 MST", s)
-			if err != nil {
-				fmt.Println("start TIME ERROR", err)
-			}
-
-			endTime := startTime.Add(time.Duration(duration) * time.Second)
-			fmt.Println("endTime", endTime, "startTime", startTime)
-			if endTime.After(time.Now()) {
-				policyID = fmt.Sprint(temporaryPolicyDoc.Data()["policyId"])
-				fmt.Println("USE THIS THING", policyID)
-			}
-		}
-		// ------------------ FACTOR
-
 		macAddress := fmt.Sprint(data["mac"])
 
 		if policyID != "" {
@@ -148,23 +105,52 @@ func getDevicePolicies() (devicePolicyMap, error) {
 	return output, nil
 }
 
+// if there is a temporaryPolicy
+// policyID should equal the temporary policyID instead
+func getPolicyID(ctx context.Context, deviceDoc *firestore.DocumentSnapshot, client *firestore.Client) string {
+	data := deviceDoc.Data()
+	policyID := ""
+	if data["defaultPolicyId"] != nil {
+		policyID = fmt.Sprint(data["defaultPolicyId"])
+	}
+
+	temporaryPolicyCollection := client.Collection("temporaryPolicies")
+	deviceID := getIDFromDoc(deviceDoc)
+	tpi := temporaryPolicyCollection.Where("deviceId", "==", deviceID).Documents(ctx)
+	defer tpi.Stop()
+
+	for {
+		temporaryPolicyDoc, err := tpi.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			fmt.Println("Error reading data", err)
+		}
+		duration, err := strconv.Atoi(fmt.Sprint(temporaryPolicyDoc.Data()["duration"]))
+		if err != nil {
+			fmt.Println("duration TIME ERROR", err)
+			continue
+		}
+
+		s := fmt.Sprint(temporaryPolicyDoc.Data()["startTime"])
+		startTime, err := time.Parse("2006-01-02 15:04:05.999 -0700 MST", s)
+		if err != nil {
+			fmt.Println("start TIME ERROR", err)
+		}
+
+		endTime := startTime.Add(time.Duration(duration) * time.Second)
+		fmt.Println("endTime", endTime, "startTime", startTime)
+		if endTime.After(time.Now()) {
+			policyID = fmt.Sprint(temporaryPolicyDoc.Data()["policyId"])
+			fmt.Println("USE THIS THING", policyID)
+		}
+	}
+	return policyID
+}
+
 func getIDFromDoc(doc *firestore.DocumentSnapshot) string {
 	pathHunks := strings.Split(fmt.Sprintf(doc.Ref.Path), "/")
 	docID := pathHunks[len(pathHunks)-1]
 	return docID
-}
-
-func convertToSlice(t interface{}) []string {
-	switch reflect.TypeOf(t).Kind() {
-	case reflect.Slice:
-		s := reflect.ValueOf(t)
-
-		output := make([]string, 0, s.Len())
-		for i := 0; i < s.Len(); i++ {
-			value := strings.Replace(fmt.Sprint(s.Index(i)), "\"", "", -1)
-			output = append(output, value)
-		}
-		return output
-	}
-	return nil
 }
