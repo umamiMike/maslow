@@ -22,6 +22,7 @@ const SignedInLinks = (props: Props) => {
         <button
           className="no-underline block mt-4 lg:inline-block lg:mt-0 text-yellow-darkest hover:text-white mr-4"
           onClick={props.signOut}
+          type="button"
         >
           Log Out
         </button>

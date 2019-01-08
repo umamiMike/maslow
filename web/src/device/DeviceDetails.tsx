@@ -6,24 +6,22 @@ import { Redirect } from "react-router-dom";
 import {
   DeviceType,
   UserDict,
+  UserType,
   PolicyDict,
-  OptionType,
+  PolicyType,
   TemporaryPolicyType
 } from "../interfaces";
-import { deleteDevice, createTemporaryPolicy } from "../store/systemActions";
-import UserGravatar from "../components/UserGravatar";
-import InputField from "../components/InputField";
+import {
+  deleteDevice,
+  createTemporaryPolicy,
+  editDevice
+} from "../store/systemActions";
+import ActionPanel from "./ActionPanel";
+import ExtraDetails from "./ExtraDetails";
+import EditDevice from "./EditDevice";
 
-const POLICY_DURATIONS: OptionType[] = [
-  { value: 15 * 60, label: "15 min" },
-  { value: 30 * 60, label: "30 min" },
-  { value: 60 * 60, label: "1 hr" },
-  { value: 4 * 60 * 60, label: "4 hrs" },
-  { value: 4 * 60 * 60, label: "8 hrs" },
-  { value: 24 * 60 * 60, label: "24 hrs" }
-];
 interface ParamType {
-  id: Number;
+  id: string;
 }
 
 interface MatchType {
@@ -31,27 +29,29 @@ interface MatchType {
 }
 
 interface Props {
+  auth: any;
   match: MatchType; // From React Router
   device: DeviceType;
   policyDict: PolicyDict;
+  policies: PolicyType[];
   userDict: UserDict;
+  users: UserType[];
   temporaryPolicies: TemporaryPolicyType[];
 
-  deleteDevice: any;
   createTemporaryPolicy: any;
+  deleteDevice: any;
+  editDevice: any;
 }
 
 interface State {
+  editing: boolean;
   reload: boolean;
-  selectedPolicyId: string;
-  policyDuration: string;
 }
 
 class DeviceDetails extends Component<Props, State> {
   state: State = {
-    reload: false,
-    selectedPolicyId: "",
-    policyDuration: "30 min"
+    editing: false,
+    reload: false
   };
 
   deleteDevice = () => {
@@ -59,22 +59,30 @@ class DeviceDetails extends Component<Props, State> {
     this.setState({ reload: true });
   };
 
-  createTemporaryPolicy = () => {
+  startEditDevice = () => {
+    this.setState({ editing: true });
+  };
+
+  cancelEditDevice = () => {
+    this.setState({ editing: false });
+  };
+
+  finishEditDevice = (device: DeviceType) => {
+    this.props.editDevice(this.props.match.params.id, device);
+    this.setState({ editing: false });
+  };
+
+  createTemporaryPolicy = (
+    selectedPolicyId: string,
+    policyDuration: string
+  ) => {
     const temporaryPolicy: TemporaryPolicyType = {
-      policyId: this.state.selectedPolicyId,
+      policyId: selectedPolicyId,
       deviceId: this.props.match.params.id + "", // For some reason TS thought this was a number
-      duration: parseInt(this.state.policyDuration, 10),
+      duration: parseInt(policyDuration, 10),
       startTime: new Date()
     };
     this.props.createTemporaryPolicy(temporaryPolicy);
-  };
-
-  handleChange = (e: any) => {
-    let value = e.target.value as string;
-    let target = e.target.id as string;
-    if (target === "selectedPolicyId")
-      this.setState({ selectedPolicyId: value });
-    if (target === "policyDuration") this.setState({ policyDuration: value });
   };
 
   calculateCurrentPolicyName = () => {
@@ -82,10 +90,14 @@ class DeviceDetails extends Component<Props, State> {
     if (this.props.temporaryPolicies.length) {
       currentPolicyId = this.props.temporaryPolicies[0].policyId;
     }
-    return this.props.policyDict[currentPolicyId].name;
+    const currentPolicy = this.props.policyDict[currentPolicyId];
+    return currentPolicy == null
+      ? ""
+      : this.props.policyDict[currentPolicyId].name;
   };
 
   render() {
+    if (!this.props.auth.uid) return <Redirect to="/signin" />;
     const id = this.props.match.params.id;
     if (this.state.reload) return <Redirect to="/" />;
     let details = (
@@ -99,80 +111,32 @@ class DeviceDetails extends Component<Props, State> {
       this.props.policyDict &&
       this.props.temporaryPolicies
     ) {
-      const users = this.props.device.users.map(userId => {
-        const user = this.props.userDict[userId] || {};
-        return <UserGravatar key={userId} user={user} userId={userId} />;
-      });
-      const policyOptions = Object.keys(this.props.policyDict).map(policyId => {
-        return { value: policyId, label: this.props.policyDict[policyId].name };
-      });
       const currentPolicyName = this.calculateCurrentPolicyName();
+      const panel = this.state.editing ? (
+        <EditDevice
+          device={this.props.device}
+          id={this.props.match.params.id}
+          policies={this.props.policies}
+          submit={this.finishEditDevice}
+          cancel={this.cancelEditDevice}
+          users={this.props.users}
+        />
+      ) : (
+        <ExtraDetails
+          currentPolicyName={currentPolicyName}
+          device={this.props.device}
+          userDict={this.props.userDict}
+        />
+      );
       details = (
         <div className="flex justify-center align-center">
-          <div className="mt-4 w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
-            <img
-              className="w-full"
-              src={`/${this.props.device.model}.png`}
-              alt={`${this.props.device.manufacturer} ${
-                this.props.device.model
-              }`}
-            />
-            <div className="px-6 py-4">
-              <div className="font-bold text-xl mb-2">
-                {this.props.device.name}
-              </div>
-              <p className="text-sm text-grey-dark flex items-center mb-4">
-                <svg
-                  className="fill-current text-grey w-3 h-3 mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M4 8V6a6 6 0 1 1 12 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8c0-1.1.9-2 2-2h1zm5 6.73V17h2v-2.27a2 2 0 1 0-2 0zM7 6v2h6V6a3 3 0 0 0-6 0z" />
-                </svg>
-                {`Policy: ${currentPolicyName}`}
-              </p>
-              <p className="text-grey-darker text-base">
-                {this.props.device.description}
-              </p>
-              <p className="text-grey text-base">{this.props.device.mac}</p>
-            </div>
-
-            <div className="ml-6">{users}</div>
-          </div>
-          <div className="flex flex-col justify-between items-start px-4">
-            <div className="mt-4 m-2 p-2 border border-solid border-grey rounded">
-              <InputField
-                className="w-48 mt-4"
-                id="selectedPolicyId"
-                label="Select policy"
-                value={this.state.selectedPolicyId}
-                options={policyOptions}
-                type="select"
-                handleChange={this.handleChange}
-              />
-              <InputField
-                className="w-48 mt-2"
-                label="Select duration"
-                id="policyDuration"
-                value={this.state.policyDuration}
-                options={POLICY_DURATIONS}
-                type="select"
-                handleChange={this.handleChange}
-              />
-              <button
-                onClick={this.createTemporaryPolicy}
-                className="bg-blue mb-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                Grant access
-              </button>
-            </div>
-            <button
-              onClick={this.deleteDevice}
-              className="bg-red mb-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Delete
-            </button>
-          </div>
+          {panel}
+          <ActionPanel
+            policyDict={this.props.policyDict}
+            deleteDevice={this.deleteDevice}
+            createTemporaryPolicy={this.createTemporaryPolicy}
+            editDevice={this.startEditDevice}
+          />
         </div>
       );
     }
@@ -208,8 +172,11 @@ const mapStateToProps = (state: any, ownProps: any) => {
   return {
     device,
     userDict: state.firestore.data.users,
+    users: state.firestore.ordered.users,
     policyDict: state.firestore.data.policies,
-    temporaryPolicies: ourTemporaryPolicies
+    policies: state.firestore.ordered.policies,
+    temporaryPolicies: ourTemporaryPolicies,
+    auth: state.firebase.auth
   };
 };
 
@@ -217,9 +184,12 @@ type DispatchFunction = (f: any) => void;
 
 const mapDispatchToProps = (dispatch: DispatchFunction) => {
   return {
-    deleteDevice: (id: string) => dispatch(deleteDevice(id)),
     createTemporaryPolicy: (temporaryPolicy: TemporaryPolicyType) => {
       return dispatch(createTemporaryPolicy(temporaryPolicy));
+    },
+    deleteDevice: (id: string) => dispatch(deleteDevice(id)),
+    editDevice: (id: string, device: DeviceType) => {
+      return dispatch(editDevice(id, device));
     }
   };
 };

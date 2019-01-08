@@ -32,6 +32,8 @@ const makeControl = (props: Props, id: string) => {
     });
   };
 
+  const value = props.options.find(option => option.value === props.value);
+
   return (
     <Select
       id={id}
@@ -39,6 +41,7 @@ const makeControl = (props: Props, id: string) => {
       options={props.options}
       onChange={selectChange}
       placeholder={props.placeholder}
+      value={value}
     />
   );
 };

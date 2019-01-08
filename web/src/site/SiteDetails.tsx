@@ -4,8 +4,9 @@ import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom";
 import { SiteType } from "../interfaces";
-import { deleteSite } from "../store/systemActions";
-import Icon from "../components/Icon";
+import { deleteSite, editSite } from "../store/systemActions";
+import ExtraDetails from "./ExtraDetails";
+import EditSite from "./EditSite";
 
 interface ParamType {
   id: Number;
@@ -19,20 +20,28 @@ interface Props {
   match: MatchType; // From React Router
   site: SiteType;
   deleteSite: any;
+  editSite: any;
 }
 
 interface State {
+  editing: boolean;
   reload: boolean;
 }
 
 class SiteDetails extends Component<Props, State> {
   state: State = {
+    editing: false,
     reload: false
   };
 
   deleteSite = () => {
     this.props.deleteSite(this.props.match.params.id);
     this.setState({ reload: true });
+  };
+
+  editSite = (site: SiteType) => {
+    this.props.editSite(this.props.match.params.id, site);
+    this.setState({ editing: false });
   };
 
   render() {
@@ -43,40 +52,28 @@ class SiteDetails extends Component<Props, State> {
         <h1>Loading…</h1>
       </div>
     );
+    const panel = this.state.editing ? (
+      <EditSite site={this.props.site} editSite={this.editSite} />
+    ) : (
+      <ExtraDetails site={this.props.site} />
+    );
     if (this.props.site) {
       details = (
         <div className="flex justify-center align-center">
-          <div className="mt-4 w-1/2 rounded overflow-hidden shadow-lg bg-blue-lightest">
-            <Icon
-              icon={this.props.site.icon}
-              className="text-5xl mt-8 h-48 lg:h-auto lg:w-48 bg-blue-lightest bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
-            />
-            <div className="px-6 py-4">
-              <div className="font-bold text-xl mb-2">
-                {this.props.site.name}
-              </div>
-              <p className="text-grey-darker text-base">
-                {this.props.site.description}
-              </p>
-              <div className="text-grey-darker text-base mt-4">
-                <ul>
-                  {this.props.site.addresses.map(address => (
-                    <li>{address}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          {panel}
+
           <div className="flex flex-col items-start">
             <button
-              onClick={() => undefined}
+              onClick={() => this.setState({ editing: true })}
               className="bg-blue m-4 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
               Edit
             </button>
             <button
               onClick={this.deleteSite}
               className="bg-red m-4 hover:bg-red-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
             >
               Delete
             </button>
@@ -105,7 +102,8 @@ type DispatchFunction = (f: any) => void;
 
 const mapDispatchToProps = (dispatch: DispatchFunction) => {
   return {
-    deleteSite: (id: string) => dispatch(deleteSite(id))
+    deleteSite: (id: string) => dispatch(deleteSite(id)),
+    editSite: (id: string, site: SiteType) => dispatch(editSite(id, site))
   };
 };
 

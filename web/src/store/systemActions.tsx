@@ -145,3 +145,54 @@ export const deletePolicy: any = (id: string) => {
       });
   };
 };
+
+export const editDevice: any = (id: string, device: DeviceType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("devices")
+      .doc(id)
+      .update(device)
+      .then(() => {
+        dispatch({ type: "EDIT_DEVICE", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: `Could not edit device ${id}` });
+      });
+  };
+};
+
+export const editSite: any = (id: string, site: SiteType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("sites")
+      .doc(id)
+      .update(site)
+      .then(() => {
+        dispatch({ type: "EDIT_SITE", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: `Could not edit site ${id}` });
+      });
+  };
+};
+
+export const editPolicy: any = (id: string, policy: PolicyType) => {
+  return (dispatch: any, getState: any, { getFirebase, getFirestore }: any) => {
+    const firestore = getFirestore();
+    firestore
+      .collection("policies")
+      .doc(id)
+      .update(policy)
+      .then(() => {
+        dispatch({ type: "EDIT_POLICY", id });
+      })
+      .catch((e: any) => {
+        console.error(e);
+        dispatch({ type: "ERROR", message: `Could not edit policy ${id}` });
+      });
+  };
+};
