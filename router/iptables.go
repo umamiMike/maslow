@@ -12,6 +12,9 @@ import (
 // -------------- Constants
 var ruleName = "grp_1"
 var ipTables = "/usr/sbin/iptables"
+var whitelistRule = "-A %s -s %s -d %s -j ACCEPT"
+var singleRejectRule = "-A %s -s %s -j REJECT"
+var systemPolicyRule = "-A %s -j ACCEPT"
 
 // Using a map of empty structs to simulate a set
 type set map[string]struct{}
@@ -56,11 +59,12 @@ func makeIPTablesRules(whitelist map[string][]string) []string {
 	}
 	for localIP, remoteIPList := range whitelist {
 		for _, remoteIP := range remoteIPList {
-			val := fmt.Sprintf("-A %s -s %s -d %s -j ACCEPT", ruleName, localIP, remoteIP)
+			val := fmt.Sprintf(whitelistRule, ruleName, localIP, remoteIP)
 			output = append(output, val)
 		}
+		output = append(output, fmt.Sprintf(singleRejectRule, ruleName, localIP))
 	}
-	output = append(output, fmt.Sprintf("-A %s -j REJECT", ruleName))
+	output = append(output, fmt.Sprintf(systemPolicyRule, ruleName))
 	return output
 }
 func executeBatch(commands []string) {

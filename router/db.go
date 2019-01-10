@@ -32,12 +32,19 @@ func (h *host) add(collectionName string) error {
 	}
 	defer client.Close()
 
-	_, err = client.Collection(collectionName).Doc(h.Mac).Set(ctx, map[string]interface{}{
+	_, err = client.Collection(collectionName).Doc(h.Mac).Get(ctx)
+	if err != nil {
+		_, err = client.Collection(collectionName).Doc(h.Mac).Set(ctx, map[string]interface{}{
+			//deliberately not uploading ip addresses of host
+			"mac":  h.Mac,
+			"name": h.Name,
+		})
+		if err != nil {
+			log.Fatalf("unable to create %v in firestore: %v", h.Name, err)
+		}
+		return err
+	}
 
-		//deliberately not uploading ip addresses of host
-		"mac":  h.Mac,
-		"name": h.Name,
-	})
 	if err != nil {
 		log.Fatal(err)
 		return err
