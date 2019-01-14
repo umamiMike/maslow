@@ -16,6 +16,7 @@ import (
 )
 
 var config = &firebase.Config{}
+var open = "__open__"
 
 func (h *host) add(collectionName string) error {
 	ctx := context.Background()
@@ -90,11 +91,15 @@ func getDevicePolicies() (devicePolicyMap, error) {
 		macAddress := fmt.Sprint(data["mac"])
 
 		if policyID != "" {
-			defaultPolicyPath := "policies/" + fmt.Sprint(data["defaultPolicyId"])
-			policy, err := client.Doc(defaultPolicyPath).Get(ctx)
+			policyPath := "policies/" + fmt.Sprint(policyID)
+			policy, err := client.Doc(policyPath).Get(ctx)
 			if err != nil {
 				log.Fatal("could not find policy...")
 				break
+			}
+			if policy.Data()["name"] == open {
+				output[macAddress] = append(output[macAddress], "*")
+				continue
 			}
 			siteIDs := convertToSlice(policy.Data()["siteIds"])
 			for _, siteID := range siteIDs {
@@ -150,7 +155,7 @@ func getPolicyID(ctx context.Context, deviceDoc *firestore.DocumentSnapshot, cli
 		fmt.Println("endTime", endTime, "startTime", startTime)
 		if endTime.After(time.Now()) {
 			policyID = fmt.Sprint(temporaryPolicyDoc.Data()["policyId"])
-			fmt.Println("USE THIS THING", policyID)
+			fmt.Println("Override policy found:", policyID)
 		}
 	}
 	return policyID
