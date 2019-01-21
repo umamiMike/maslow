@@ -34,6 +34,15 @@ that they are spending their time wisely.
 
 you will have to generate a secret.json file from firebase.
 
+## Set up crontab
+
+```
+echo '* * * * * root SSL_CERT_DIR=/opt/etc/ssl/certs SECRET_FILE=/tmp/root/maslow-2de90-firebase-adminsdk-10ing-d37ed58f69.json /tmp/root/router_service iptables /tmp/dnsmasq.log /tmp/dnsmasq.leases' > /tmp/cron.d/maslow-policy
+echo '30 * * * * root SSL_CERT_DIR=/opt/etc/ssl/certs SECRET_FILE=/tmp/root/maslow-2de90-firebase-adminsdk-10ing-d37ed58f69.json /tmp/root/router_service parse-leases /tmp/dnsmasq.leases' > /tmp/cron.d/maslow-devices
+stopservice crond && startservice crond
+
+```
+
 ```
 opkg install ca-certificates
 cat > .bash_profile << EOF
@@ -47,13 +56,7 @@ root@speck:~# ./router_service parse-leases /tmp/dnsmasq.leases
 umount /dev/sda1
 mount /dev/sda1 /opt
 curl -Ok https://raw.githubusercontent.com/psbanka/configuration-files/master/.tmux.conf
-curl -k https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-python2 get-pip.py
 tmux
-# rsync
-cd dad-runs-the-internet/router/scripts
-ln -s ../src dri_router
-python2 ./dri_daemon -vtd start
 ```
 
 ```

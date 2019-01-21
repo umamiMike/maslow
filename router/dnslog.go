@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -24,7 +25,11 @@ func parseLog(s string) (string, string, error) {
 	}
 	name := strings.Replace(splitStr2[1], "\"", "", -1)
 	iPAddress := splitStr2[3]
-	return name, iPAddress, nil
+	r, _ := regexp.Compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")
+	if r.MatchString(iPAddress) {
+		return name, iPAddress, nil
+	}
+	return "", "", nil
 }
 
 func readAndParseDNS(filename string) (map[string][]string, error) {
