@@ -44,10 +44,12 @@ func readAndParseDNS(filename string) (map[string][]string, error) {
 	for s.Scan() {
 		logLine := s.Text()
 		key, value, err := parseLog(logLine)
-		if err == nil {
-			if key != "" {
-				output[key] = append(output[key], value)
-			}
+		if err != nil {
+			//we dont care
+			continue
+		}
+		if key != "" {
+			output[key] = append(output[key], value)
 		}
 	}
 	g.Close()
