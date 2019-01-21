@@ -5,7 +5,7 @@ export interface AuthState {
 
 export interface OptionType {
   label: string;
-  value: string | number;
+  value: string;
 }
 
 export interface TemporaryPolicyType {

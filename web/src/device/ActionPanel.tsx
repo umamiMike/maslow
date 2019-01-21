@@ -3,12 +3,12 @@ import InputField from "../components/InputField";
 import { OptionType, PolicyDict } from "../interfaces";
 
 const POLICY_DURATIONS: OptionType[] = [
-  { value: 15 * 60, label: "15 min" },
-  { value: 30 * 60, label: "30 min" },
-  { value: 60 * 60, label: "1 hr" },
-  { value: 4 * 60 * 60, label: "4 hrs" },
-  { value: 4 * 60 * 60, label: "8 hrs" },
-  { value: 24 * 60 * 60, label: "24 hrs" }
+  { value: `${15 * 60}`, label: "15 min" },
+  { value: `${30 * 60}`, label: "30 min" },
+  { value: `${60 * 60}`, label: "1 hr" },
+  { value: `${4 * 60 * 60}`, label: "4 hrs" },
+  { value: `${4 * 60 * 60}`, label: "8 hrs" },
+  { value: `${24 * 60 * 60}`, label: "24 hrs" }
 ];
 
 interface Props {
@@ -25,10 +25,18 @@ interface State {
 }
 
 export class ActionPanel extends Component<Props, State> {
-  state: State = {
-    policyDuration: "30 min",
-    selectedPolicyId: ""
-  };
+  policyOptions: any;
+
+  constructor(props: Props) {
+    super(props);
+    this.policyOptions = Object.keys(this.props.policyDict).map(policyId => {
+      return { value: policyId, label: this.props.policyDict[policyId].name };
+    });
+    this.state = {
+      policyDuration: POLICY_DURATIONS[0].value,
+      selectedPolicyId: this.policyOptions[0].value
+    };
+  }
 
   handleChange = (e: any) => {
     let value = e.target.value as string;
@@ -39,9 +47,6 @@ export class ActionPanel extends Component<Props, State> {
   };
 
   render() {
-    const policyOptions = Object.keys(this.props.policyDict).map(policyId => {
-      return { value: policyId, label: this.props.policyDict[policyId].name };
-    });
     return (
       <div className="flex flex-col justify-between items-start px-4">
         <div className="mt-4 m-2 p-2 border border-solid border-grey rounded">
@@ -50,7 +55,7 @@ export class ActionPanel extends Component<Props, State> {
             id="selectedPolicyId"
             label="Select policy"
             value={this.state.selectedPolicyId}
-            options={policyOptions}
+            options={this.policyOptions}
             type="select"
             handleChange={this.handleChange}
           />
