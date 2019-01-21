@@ -58,9 +58,9 @@ type devicePolicy struct {
 	Regexes []string
 }
 
-type devicePolicyMap map[string][]string
+type DevicePolicyMap map[string][]string
 
-func getDevicePolicies() (devicePolicyMap, error) {
+func getDevicePolicies() (DevicePolicyMap, error) {
 	output := make(map[string][]string)
 	//TODO: move out to own function
 	ctx := context.Background()

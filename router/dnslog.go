@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/hpcloud/tail"
 )
 
 func parseLog(s string) (string, string, error) {
@@ -46,10 +49,44 @@ func readAndParseDNS(filename string) (map[string][]string, error) {
 		key, value, err := parseLog(logLine)
 		if err == nil {
 			if key != "" {
+				// FIXME: value needs to be UNIQUE in the array. Use a set?
 				output[key] = append(output[key], value)
 			}
 		}
 	}
 	g.Close()
 	return output, nil
+}
+
+func implementIPTableRules(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePolicyMap) {
+	log.Println("Generating iptables rules...")
+	whitelist := generateWhitelist(dnsMap, leaseDict, devicePolicies)
+	rules := makeIPTablesRules(whitelist)
+	for _, rule := range rules {
+		fmt.Println(rule)
+	}
+	executeBatch(rules)
+	log.Println("rules updated")
+}
+
+func tailAndParseDNS(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePolicyMap, filename string) {
+	implementIPTableRules(leaseDict, dnsMap, devicePolicies)
+
+	t, err := tail.TailFile(filename, tail.Config{Follow: true, Location: &tail.SeekInfo{Offset: 0, Whence: os.SEEK_END}})
+	if err != nil {
+		log.Fatalf("Cannot access log file %s\n", filename)
+	}
+
+	for line := range t.Lines {
+		key, value, err := parseLog(line.Text)
+		if err != nil {
+			continue
+		}
+		if key != "" {
+			log.Println(key, value)
+			dnsMap[key] = append(dnsMap[key], value) // FIXME: are getting more than one copy of the IP address here?
+			// TODO: if dnsMap has changed, run implementIptablesRules again
+			implementIPTableRules(leaseDict, dnsMap, devicePolicies)
+		}
+	}
 }

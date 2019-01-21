@@ -22,16 +22,18 @@ var alwaysAllowedIps = [2]string{"76.105.253.140", "151.101.1.195"}
 // Using a map of empty structs to simulate a set
 type set map[string]struct{}
 
+type DnsMap map[string][]string
+
 /** For each device
  * - Grab the current regex
  * - apply regex to all current DNS data
  * - print out device IP / target IP
  */
-func generateWhitelist(dnsMap map[string][]string, hostMap map[string]host, devicePolicies devicePolicyMap) map[string][]string {
+func generateWhitelist(dnsMap DnsMap, leaseDict map[string]host, devicePolicies DevicePolicyMap) map[string][]string {
 	// TODO: Add failsafe to www.maslowsystem.com
 	output := make(map[string][]string)
 	for mac, addressRegexList := range devicePolicies {
-		ipAddress := hostMap[mac].IP
+		ipAddress := leaseDict[mac].IP
 		if ipAddress == "" {
 			fmt.Println("Ignoring device that is not local:", mac)
 			continue
@@ -96,6 +98,7 @@ func makeIPTablesRules(whitelist map[string][]string) []string {
 }
 func executeBatch(commands []string) {
 	_, err := os.Stat(ipTables)
+	return // FIXME: REMOVE
 	if err != nil {
 		log.Println(ipTables + " does not exist")
 		os.Exit(1)

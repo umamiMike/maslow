@@ -23,7 +23,10 @@ func parseMasq(s string) (host, error) {
 	output := host{splitstr[3], splitstr[1], splitstr[2]}
 	return output, nil
 }
-func readAndParseLeases(filename string) (map[string]host, error) {
+
+type LeaseDict map[string]host
+
+func readAndParseLeases(filename string) (LeaseDict, error) {
 	output := make(map[string]host)
 	q, err := os.Open(filename)
 	if err != nil {
