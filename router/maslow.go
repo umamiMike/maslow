@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/spf13/cobra"
 )
 
@@ -40,8 +42,22 @@ var parseDNS = &cobra.Command{
 		}
 		dnsMap, err := readAndParseDNS(args[0])
 		if err == nil {
-			log.Println(dnsMap)
+			for _, set := range dnsMap {
+				spew.Dump(set)
+			}
 		}
+	},
+}
+
+// Write script that scans dnsmasq.log output and builds a dictionary of names and IP addresses
+var tailDNS = &cobra.Command{
+	Use:   "tail-dns",
+	Short: "Tail the system dnsmasq.log file and write to stdout",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			log.Fatalln("must supply the path to the dnsmasq.log file")
+		}
+		// tailAndParseDNS(args[0])
 	},
 }
 

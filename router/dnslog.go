@@ -12,6 +12,9 @@ import (
 	"github.com/hpcloud/tail"
 )
 
+// DnsMap is a thing
+type DnsMap map[string]map[string]bool
+
 func parseLog(s string) (string, string, error) {
 	splitstr := strings.Split(s, ": ")
 	if len(splitstr) != 2 {
@@ -35,7 +38,7 @@ func parseLog(s string) (string, string, error) {
 	return "", "", nil
 }
 
-func readAndParseDNS(filename string) (map[string][]string, error) {
+func readAndParseDNS(filename string) (DnsMap, error) {
 	g, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
@@ -43,14 +46,17 @@ func readAndParseDNS(filename string) (map[string][]string, error) {
 	}
 
 	s := bufio.NewScanner(g)
-	output := make(map[string][]string)
+	output := make(DnsMap)
 	for s.Scan() {
 		logLine := s.Text()
 		key, value, err := parseLog(logLine)
 		if err == nil {
 			if key != "" {
-				// FIXME: value needs to be UNIQUE in the array. Use a set?
-				output[key] = append(output[key], value)
+				_, ok := output[key]
+				if !ok {
+					output[key] = make(map[string]bool)
+				}
+				output[key][value] = true
 			}
 		}
 	}
@@ -83,10 +89,15 @@ func tailAndParseDNS(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePo
 			continue
 		}
 		if key != "" {
-			log.Println(key, value)
-			dnsMap[key] = append(dnsMap[key], value) // FIXME: are getting more than one copy of the IP address here?
-			// TODO: if dnsMap has changed, run implementIptablesRules again
-			implementIPTableRules(leaseDict, dnsMap, devicePolicies)
+			_, ok := dnsMap[key]
+			if !ok {
+				dnsMap[key] = make(map[string]bool)
+			}
+			_, ok = dnsMap[key][value]
+			if !ok {
+				dnsMap[key][value] = true
+				implementIPTableRules(leaseDict, dnsMap, devicePolicies)
+			}
 		}
 	}
 }

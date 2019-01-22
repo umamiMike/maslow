@@ -22,8 +22,6 @@ var alwaysAllowedIps = [2]string{"76.105.253.140", "151.101.1.195"}
 // Using a map of empty structs to simulate a set
 type set map[string]struct{}
 
-type DnsMap map[string][]string
-
 /** For each device
  * - Grab the current regex
  * - apply regex to all current DNS data
@@ -49,9 +47,9 @@ func generateWhitelist(dnsMap DnsMap, leaseDict map[string]host, devicePolicies 
 			}
 
 			r, _ := regexp.Compile(addressRegex)
-			for name, addresses := range dnsMap {
+			for name, addressMap := range dnsMap {
 				if r.MatchString(name) {
-					for _, address := range addresses {
+					for address := range addressMap {
 						allowedIPs[address] = struct{}{}
 					}
 				}
