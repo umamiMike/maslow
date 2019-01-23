@@ -13,8 +13,8 @@ deploy-wrt: build-wrt
 	@bash ../secrets/env.sh
 	@cat ../secrets/env.sh
 	@echo $$ROUTER
-	@scp ./builds/$(BINNAME)  $$ROUTER:~/
-	@scp $$SECRET_FILE $$ROUTER:~/maslow-service-credentials.json
+	@scp ./builds/$(BINNAME)  $$ROUTER:
+	@scp $$SECRET_FILE $$ROUTER:maslow-service-credentials.json
 clean:
 	@echo removing build directory
 	@rm -rf ./builds/

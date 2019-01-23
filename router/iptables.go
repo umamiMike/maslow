@@ -12,9 +12,9 @@ import (
 // -------------- Constants
 var ruleName = "grp_1"
 var ipTables = "/usr/sbin/iptables"
-var whitelistRule = "-A %s -s %s -d %s -j ACCEPT"
+var whitelistRule = "-A %s -s %s -d %s -p tcp -j ACCEPT"
 var openRule = "-A %s -s %s -j ACCEPT"
-var singleRejectRule = "-A %s -s %s -j REJECT"
+var singleRejectRule = "-A %s -s %s -p tcp -j REJECT"
 var systemPolicyRule = "-A %s -j ACCEPT"
 
 var alwaysAllowedIps = [2]string{"76.105.253.140", "151.101.1.195"}
@@ -96,21 +96,19 @@ func makeIPTablesRules(whitelist map[string][]string) []string {
 }
 func executeBatch(commands []string) {
 	_, err := os.Stat(ipTables)
-	return // FIXME: REMOVE
 	if err != nil {
-		log.Println(ipTables + " does not exist")
-		os.Exit(1)
+		log.Fatalln(ipTables + " does not exist")
 	}
 	status := 0
 	for _, command := range commands {
-		log.Printf("Running command and waiting for it to finish...%s", command)
+		// log.Printf("Running command and waiting for it to finish...%s", command)
 		parts := strings.Split(command, " ")
 		cmd := exec.Command(ipTables, parts...)
 		err := cmd.Run()
 		if err != nil {
-			log.Printf("Command finished with error: %v", err)
+			log.Printf("Command finished with error: %s %v", command, err)
 			status = 1
 		}
 	}
-	os.Exit(status)
+	log.Println("Implemented %d", status)
 }
