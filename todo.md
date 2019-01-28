@@ -2,6 +2,7 @@
 
 ## top priority:
 
+[ ] - Make **open** policy editable
 [ ] - Be able to delete something from a list of stuff in the middle (i.e. a 'minus' button)
 [ ] - PREVENT trailing empty at the end of a site because it matches fucking everything
 [ ] - See how stuff looks on mobile
@@ -19,21 +20,24 @@
 
 # Router:
 
-# # top priority:
+## top priority:
 
-[ ] - Tail files and run `router_service` as a daemon so that it can react more quickly to changes
-[ ] - split out everything into separate chains so that the system can be modified more easily
+[X] - Get "open" rules working
 [ ] - Talk to firebase less: leave a persistent connection to firebase up and write files to filesystem when there are changes
+[ ] - Pay attention to CNAMEs for address resolution
+[ ] - De-bounce dnsmasq.log change
+[ ] - Only modify chains that change rather than all of them
+[ ] - Run `router_service` as a daemon so that it can react more quickly to changes
 [ ] - refactor firebase connection establishment from db.go get()
+[X] - Only modify iptables rules upon DNS update when there is a change to a rule at all
+[X] - split out everything into separate chains so that the system can be modified more easily
+[X] - Tail files
+[X] - Implement all firewall rules from the ground up to ensure proper state of the system
 [X] - When new devices are found, create them only if they do not exist already
 [X] - run iptables periodically on router (with crontab)
 [X] - run push-arp on router (with crontab)
 [X] - Update installation instructions for setting up crontab
-
-## lower priority:
-
 [ ] - Write a firebase function that takes a list of MAC addresses and returns a set of whitelists for each one
-[ ] - Be able to run maslow as a daemon
 
 # Firebase:
 
@@ -44,3 +48,7 @@
 
 [ ] - Mac client which runs in electron which has a username/password and mac address and downloads current policy data
 [ ] - Mac client which allows the user to change the policy temporarily
+
+# Chrome plugin:
+
+[ ] - Have a chrome extension which can create a maslow rule for the site you're on

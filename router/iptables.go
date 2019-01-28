@@ -11,19 +11,19 @@ import (
 )
 
 // -------------- Constants
-var ruleName = "grp_1"
 var ipTables = "/usr/sbin/iptables"
-var whitelistRule = "-A %s -s %s -d %s -p tcp -j ACCEPT"
-var openRule = "-A %s -j ACCEPT"
-var singleRejectRule = "-A %s -p tcp -j REJECT"
-
 var alwaysAllowedIps = [2]string{"76.105.253.140", "151.101.1.195"}
 
 // Using a map of empty structs to simulate a set
 type set map[string]struct{}
 
-func generateDeviceChains(leaseDict LeaseDict, serverData ServerData) ([]string, []string) {
-	var commands []string
+type iptCommand struct {
+	command     string
+	mustSucceed bool
+}
+
+func generateDeviceChains(leaseDict LeaseDict, serverData ServerData) ([]iptCommand, []string) {
+	var commands []iptCommand
 	var localAddresses []string
 	for mac, devicePolicyData := range serverData.Devices {
 		onLocalNetwork := false
@@ -40,10 +40,11 @@ func generateDeviceChains(leaseDict LeaseDict, serverData ServerData) ([]string,
 		}
 		localAddresses = append(localAddresses, mac)
 		chain := formatChainName(fmt.Sprintf("grp_device_%s_%s", fmt.Sprint(devicePolicyData.Name), mac))
-		commands = append(commands, fmt.Sprintf("--delete-chain %s", chain))
-		commands = append(commands, fmt.Sprintf("--new %s", chain))
-		commands = append(commands, fmt.Sprintf("-I FORWARD -s %s -j %s", ipAddress, chain))
-		commands = append(commands, fmt.Sprintf(singleRejectRule, chain))
+		commands = append(commands, iptCommand{fmt.Sprintf("--flush %s", chain), false})
+		commands = append(commands, iptCommand{fmt.Sprintf("--delete-chain %s", chain), false})
+		commands = append(commands, iptCommand{fmt.Sprintf("--new %s", chain), true})
+		commands = append(commands, iptCommand{fmt.Sprintf("-I FORWARD -s %s -j %s", ipAddress, chain), true})
+		commands = append(commands, iptCommand{fmt.Sprintf("-A %s -p tcp -j REJECT", chain), true})
 	}
 	return commands, localAddresses
 }
@@ -58,12 +59,13 @@ func formatChainName(chainName string) string {
 	return lower
 }
 
-func generatePolicyChains(serverData ServerData, localAddresses []string) []string {
-	var commands []string
+func generatePolicyChains(serverData ServerData, localAddresses []string) []iptCommand {
+	var commands []iptCommand
 	for policyID, policy := range serverData.Policies {
 		policyChain := formatChainName(fmt.Sprintf("grp_policy_%s_%s", policy.Name, policyID))
-		commands = append(commands, fmt.Sprintf("--delete-chain %s", policyChain))
-		commands = append(commands, fmt.Sprintf("--new %s", policyChain))
+		commands = append(commands, iptCommand{fmt.Sprintf("--flush %s", policyChain), false})
+		commands = append(commands, iptCommand{fmt.Sprintf("--delete-chain %s", policyChain), false})
+		commands = append(commands, iptCommand{fmt.Sprintf("--new %s", policyChain), true})
 
 		// For each device that has the policy, stick it in the device's chain!
 		for _, localAddress := range localAddresses {
@@ -71,20 +73,26 @@ func generatePolicyChains(serverData ServerData, localAddresses []string) []stri
 			deviceChain := formatChainName(fmt.Sprintf("grp_device_%s_%s", devicePolicyData.Name, localAddress))
 			temporaryPolicyInEffect := devicePolicyData.TemporaryPolicyID == policyID && devicePolicyData.EndTime.After(time.Now())
 			if devicePolicyData.DefaultPolicyID == policyID || temporaryPolicyInEffect {
-				commands = append(commands, fmt.Sprintf("-I %s -j %s", deviceChain, policyChain))
+				commands = append(commands, iptCommand{fmt.Sprintf("-I %s -j %s", deviceChain, policyChain), true})
 			}
 		}
-		// Go ahead and add jumps to each site chain that this contains
-		for _, siteID := range policy.Sites {
-			siteData := serverData.Sites[siteID]
-			siteChain := formatChainName(fmt.Sprintf("grp_site_%s_%s", siteData.Name, siteID))
-			commands = append(commands, fmt.Sprintf("-I %s -j %s", policyChain, siteChain))
+
+		if policy.Name == "__open__" {
+			// The __open__ chain doesn't have sites, it merely accepts all traffic
+			commands = append(commands, iptCommand{fmt.Sprintf("-I %s -j ACCEPT", policyChain), true})
+		} else {
+			// Go ahead and add jumps to each site chain that this contains
+			for _, siteID := range policy.Sites {
+				siteData := serverData.Sites[siteID]
+				siteChain := formatChainName(fmt.Sprintf("grp_site_%s_%s", siteData.Name, siteID))
+				commands = append(commands, iptCommand{fmt.Sprintf("-I %s -j %s", policyChain, siteChain), true})
+			}
 		}
 	}
 	return commands
 }
 
-func getAddressesForRegex(addressRegexList []string, dnsMap DnsMap) []string {
+func getAddressesForRegex(addressRegexList []string, dnsMap DNSMap) []string {
 	allowedIPs := set{}
 	allowAll := false
 	var output []string
@@ -118,63 +126,95 @@ func getAddressesForRegex(addressRegexList []string, dnsMap DnsMap) []string {
 	return output
 }
 
-func generateSiteChains(serverData ServerData, dnsMap DnsMap) []string {
-	var commands []string
+func generateSiteChains(serverData ServerData, dnsMap DNSMap) []iptCommand {
+	var commands []iptCommand
 	for siteID, siteData := range serverData.Sites {
 		siteChain := formatChainName(fmt.Sprintf("grp_site_%s_%s", siteData.Name, siteID))
-		commands = append(commands, fmt.Sprintf("--delete-chain %s", siteChain))
-		commands = append(commands, fmt.Sprintf("--new %s", siteChain))
+		commands = append(commands, iptCommand{fmt.Sprintf("--flush %s", siteChain), false})
+		commands = append(commands, iptCommand{fmt.Sprintf("--delete-chain %s", siteChain), false})
+		commands = append(commands, iptCommand{fmt.Sprintf("--new %s", siteChain), true})
+
 		for _, address := range getAddressesForRegex(siteData.RegexList, dnsMap) {
-			commands = append(commands, fmt.Sprintf("-I %s -p tcp -d %s -j ACCEPT", siteChain, address))
+			commands = append(commands, iptCommand{fmt.Sprintf("-I %s -p tcp -d %s -j ACCEPT", siteChain, address), true})
 		}
 	}
 	return commands
 }
 
-func executeBatch(commands []string) {
+func executeBatch(commands []iptCommand) {
 	_, err := os.Stat(ipTables)
 	if err != nil {
 		log.Fatalln(ipTables + " does not exist")
 	}
 	status := 0
 	for _, command := range commands {
-		log.Printf("Running command and waiting for it to finish...%s", command)
-		parts := strings.Split(command, " ")
+		// log.Printf("Running command and waiting for it to finish.. .%s (ok to fail? %t)", command.command, command.mustSucceed)
+		parts := strings.Split(command.command, " ")
 		cmd := exec.Command(ipTables, parts...)
 		err := cmd.Run()
-		if err != nil {
-			log.Fatalf("Command finished with error: %s %v", command, err)
+		if err != nil && command.mustSucceed {
+			log.Fatalf("Command finished with error: %s %v", command.command, err) // TODO: change back to log.Printf
 			status = 1
 		}
 	}
-	log.Println("Implemented %d", status)
+	log.Printf("Implemented %d\n", status)
 }
 
-func implementIPTablesRules(leaseDict LeaseDict, serverData ServerData, dnsMap DnsMap) {
+func implementIPTablesRules(leaseDict LeaseDict, serverData ServerData, dnsMap DNSMap) {
 	log.Println("Generating iptables rules...")
-	// TODO: delete all existing rules in FORWARD and re-create
-	/*
-		:FORWARD ACCEPT [37703:37111553]
-		-A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-		:FORWARD ACCEPT [0:0]
-		-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-		-A FORWARD -s 192.168.1.0/255.255.255.0 -o vlan2 -p gre -j ACCEPT
-		-A FORWARD -s 192.168.1.0/255.255.255.0 -o vlan2 -p tcp -m tcp --dport 1723 -j ACCEPT
-		-A FORWARD -j lan2wan
-		-A FORWARD -i br0 -o br0 -j ACCEPT
-		-A FORWARD -i vlan2 -o br0 -j TRIGGER --trigger-proto --trigger-match 0-0 --trigger-relate 0-0
-		-A FORWARD -i br0 -j trigger_out
-		-A FORWARD -i br0 -m state --state NEW -j ACCEPT
-		-A FORWARD -j DROP
-	*/
+	systemCommands := []iptCommand{
+		iptCommand{"-P FORWARD ACCEPT", true},
+		iptCommand{"-F", true},
+		iptCommand{"-t nat -X", true},
+		iptCommand{"-t mangle -F", true},
+		iptCommand{"-X", true},
+		iptCommand{"--new lan2wan", true},
+		iptCommand{"--new logaccept", true},
+		iptCommand{"--new logdrop", true},
+		iptCommand{"--new logreject", true},
+		iptCommand{"--new trigger_out", true},
+		iptCommand{"-t nat -P PREROUTING ACCEPT", true},
+		iptCommand{"-t nat -A PREROUTING -d 10.0.0.126 -p tcp -m tcp --dport 22 -j DNAT --to-destination 192.168.1.1:22", true},
+		iptCommand{"-t nat -A PREROUTING -d 10.0.0.126 -p icmp -j DNAT --to-destination 192.168.1.1", true},
+		iptCommand{"-t nat -A PREROUTING -d 10.0.0.126 -j TRIGGER --trigger-proto --trigger-match 0-0 --trigger-relate 0-0", false},
+		iptCommand{"-t nat -A POSTROUTING -s 192.168.1.0/255.255.255.0 -o vlan2 -j SNAT --to-source 10.0.0.126", true},
+		iptCommand{"-t nat -A POSTROUTING -m mark -j MASQUERADE", false},
+		iptCommand{"-t mangle -A PREROUTING -d 10.0.0.126 -i ! vlan2 -j MARK", false},
+		iptCommand{"-t mangle -A PREROUTING -j CONNMARK --save-mark", true},
+		iptCommand{"-t mangle -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu", true},
+		iptCommand{"-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT", true},
+		iptCommand{"-A INPUT -i vlan2 -p udp -m udp --sport 67 --dport 68 -j ACCEPT", true},
+		iptCommand{"-A INPUT -i vlan2 -p udp -m udp --dport 520 -j DROP", true},
+		iptCommand{"-A INPUT -i br0 -p udp -m udp --dport 520 -j DROP", true},
+		iptCommand{"-A INPUT -p udp -m udp --dport 520 -j ACCEPT", true},
+		iptCommand{"-A INPUT -d 192.168.1.1 -i vlan2 -p tcp -m tcp --dport 22 -j ACCEPT", true},
+		iptCommand{"-A INPUT -i vlan2 -p icmp -j DROP", true},
+		iptCommand{"-A INPUT -p igmp -j DROP", true},
+		iptCommand{"-A INPUT -i lo -m state --state NEW -j ACCEPT", true},
+		iptCommand{"-A INPUT -i br0 -m state --state NEW -j ACCEPT", true},
+		iptCommand{"-A INPUT -j DROP", true},
+		iptCommand{"-A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu", true},
+		iptCommand{"-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT", true},
+		iptCommand{"-A FORWARD -s 192.168.1.0/255.255.255.0 -o vlan2 -p gre -j ACCEPT", true},
+		iptCommand{"-A FORWARD -s 192.168.1.0/255.255.255.0 -o vlan2 -p tcp -m tcp --dport 1723 -j ACCEPT", true},
+		iptCommand{"-A FORWARD -j lan2wan", true},
+		iptCommand{"-A FORWARD -i br0 -o br0 -j ACCEPT", true},
+		iptCommand{"-A FORWARD -i vlan2 -o br0 -j TRIGGER --trigger-proto --trigger-match 0-0 --trigger-relate 0-0", false},
+		iptCommand{"-A FORWARD -i br0 -j trigger_out", true},
+		iptCommand{"-A FORWARD -i br0 -m state --state NEW -j ACCEPT", true},
+		iptCommand{"-A FORWARD -j DROP", true},
+	}
 	deviceCommands, localAddresses := generateDeviceChains(leaseDict, serverData)
 	policyCommands := generatePolicyChains(serverData, localAddresses)
 	siteCommands := generateSiteChains(serverData, dnsMap)
-	commands := append(deviceCommands, policyCommands...)
+	var commands []iptCommand
+	commands = systemCommands
+	commands = append(commands, deviceCommands...)
 	commands = append(commands, siteCommands...)
-	for _, command := range commands {
-		fmt.Println(command)
-	}
+	commands = append(commands, policyCommands...)
+	// for _, command := range commands {
+	// 	fmt.Println(command)
+	// }
 	executeBatch(commands)
 	log.Println("rules updated")
 }

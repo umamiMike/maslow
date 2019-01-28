@@ -101,7 +101,7 @@ var cmdIptables = &cobra.Command{
 		}
 		implementIPTablesRules(leaseDict, serverData, dnsMap)
 		if iptablesFollow {
-			// tailAndParseDNS(leaseDict, dnsMap, devicePolicies, args[0])
+			tailAndParseDNS(leaseDict, serverData, dnsMap, args[0])
 		}
 	},
 }
