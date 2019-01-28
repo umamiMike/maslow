@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
+
+	"github.com/davecgh/go-spew/spew"
 
 	"github.com/spf13/cobra"
 )
@@ -19,15 +19,13 @@ var parseLeases = &cobra.Command{
 	Short: "Parse the system dnsmasq.leases file and upload system data to firebase",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			log.Println("must supply the path to the dnsmasq.leases file")
-			os.Exit(1)
+			log.Fatalln("must supply the path to the dnsmasq.leases file")
 		}
-		hostMap, err := readAndParseLeases(args[0])
+		leaseDict, err := readAndParseLeases(args[0])
 		if err != nil {
 			log.Fatal("error parsing leases\n", err)
-			os.Exit(1)
 		}
-		for _, host := range hostMap {
+		for _, host := range leaseDict {
 			host.add("devices")
 			log.Println(">> ", host.Name, host.IP, host.Mac)
 		}
@@ -40,13 +38,26 @@ var parseDNS = &cobra.Command{
 	Short: "Parse the system dnsmasq.log file and write to stdout",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			log.Println("must supply the path to the dnsmasq.log file")
-			os.Exit(1)
+			log.Fatalln("must supply the path to the dnsmasq.log file")
 		}
 		dnsMap, err := readAndParseDNS(args[0])
 		if err == nil {
-			log.Println(dnsMap)
+			for _, set := range dnsMap {
+				spew.Dump(set)
+			}
 		}
+	},
+}
+
+// Write script that scans dnsmasq.log output and builds a dictionary of names and IP addresses
+var tailDNS = &cobra.Command{
+	Use:   "tail-dns",
+	Short: "Tail the system dnsmasq.log file and write to stdout",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			log.Fatalln("must supply the path to the dnsmasq.log file")
+		}
+		// tailAndParseDNS(args[0])
 	},
 }
 
@@ -71,45 +82,34 @@ var iptables = &cobra.Command{
 	Short: "Generate IPTables rules for this router",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
-			log.Println("must supply the path to the dnsmasq.log AND dnsmasq.leases files")
-			os.Exit(1)
+			log.Fatalln("must supply the path to the dnsmasq.log AND dnsmasq.leases files")
 		}
 		log.Println("Parsing lease data...")
-		hostMap, err := readAndParseLeases(args[1])
+		leaseDict, err := readAndParseLeases(args[1])
 		if err != nil {
 			log.Fatal("error parsing lease data\n", err)
-			os.Exit(1)
 		}
 		log.Println("Parsing DNS data...")
 		dnsMap, err := readAndParseDNS(args[0])
 		if err != nil {
 			log.Fatal("error parsing dns data\n", err)
-			os.Exit(1)
 		}
 		log.Println("Downloading policies...")
 		devicePolicies, err := getDevicePolicies()
 		if err != nil {
 			log.Fatal("error downloading policies\n", err)
-			os.Exit(1)
 		}
-		log.Println("Generating iptables rules...")
-		whitelist := generateWhitelist(dnsMap, hostMap, devicePolicies)
-		rules := makeIPTablesRules(whitelist)
-		for _, rule := range rules {
-			fmt.Println(rule)
-		}
-		executeBatch(rules)
-		log.Println("rules updated")
+		tailAndParseDNS(leaseDict, dnsMap, devicePolicies, args[0])
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(parseLeases)
+	rootCmd.AddCommand(tailDNS)
 	rootCmd.AddCommand(parseDNS)
 	rootCmd.AddCommand(pullRules)
 	rootCmd.AddCommand(iptables)
 	rootCmd.Execute()
-
 }
 func main() {
 }
