@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"log"
+
+	// "log"
 	"os"
 	"regexp"
 	"strings"
-
-	"github.com/hpcloud/tail"
+	// "github.com/hpcloud/tail"
 )
 
 // DnsMap is a thing
@@ -64,17 +64,7 @@ func readAndParseDNS(filename string) (DnsMap, error) {
 	return output, nil
 }
 
-func implementIPTableRules(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePolicyMap) {
-	log.Println("Generating iptables rules...")
-	whitelist := generateWhitelist(dnsMap, leaseDict, devicePolicies)
-	rules := makeIPTablesRules(whitelist)
-	for _, rule := range rules {
-		fmt.Println(rule)
-	}
-	executeBatch(rules)
-	log.Println("rules updated")
-}
-
+/* TODO
 func tailAndParseDNS(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePolicyMap, filename string) {
 	implementIPTableRules(leaseDict, dnsMap, devicePolicies)
 
@@ -101,3 +91,4 @@ func tailAndParseDNS(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePo
 		}
 	}
 }
+*/

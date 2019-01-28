@@ -2,6 +2,8 @@
 
 ## top priority:
 
+[ ] - Be able to delete something from a list of stuff in the middle (i.e. a 'minus' button)
+[ ] - PREVENT trailing empty at the end of a site because it matches fucking everything
 [ ] - See how stuff looks on mobile
 [X] - Make a special "**open**" policy where we set the device-policy to -j ACCEPT
 [X] - Ensure that we can always get to www.maslowsystem.com
@@ -20,6 +22,7 @@
 # # top priority:
 
 [ ] - Tail files and run `router_service` as a daemon so that it can react more quickly to changes
+[ ] - split out everything into separate chains so that the system can be modified more easily
 [ ] - Talk to firebase less: leave a persistent connection to firebase up and write files to filesystem when there are changes
 [ ] - refactor firebase connection establishment from db.go get()
 [X] - When new devices are found, create them only if they do not exist already
