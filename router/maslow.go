@@ -14,7 +14,7 @@ var rootCmd = &cobra.Command{
 	Long:  "Think of all the wonderful things you will be able to do with your time",
 }
 
-var parseLeases = &cobra.Command{
+var cmdParseLeases = &cobra.Command{
 	Use:   "parse-leases",
 	Short: "Parse the system dnsmasq.leases file and upload system data to firebase",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -33,7 +33,7 @@ var parseLeases = &cobra.Command{
 }
 
 // Write script that scans dnsmasq.log output and builds a dictionary of names and IP addresses
-var parseDNS = &cobra.Command{
+var cmdParseDNS = &cobra.Command{
 	Use:   "parse-dns",
 	Short: "Parse the system dnsmasq.log file and write to stdout",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -50,7 +50,7 @@ var parseDNS = &cobra.Command{
 }
 
 // Write script that scans dnsmasq.log output and builds a dictionary of names and IP addresses
-var tailDNS = &cobra.Command{
+var cmdTailDNS = &cobra.Command{
 	Use:   "tail-dns",
 	Short: "Tail the system dnsmasq.log file and write to stdout",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -64,20 +64,20 @@ var tailDNS = &cobra.Command{
 // Pull down all values from the following collections: "devices", "policies",
 // "sites", "temporaryPolicies" and construct a map of slices {macAddress:
 // [regex...]}
-var pullRules = &cobra.Command{
+var cmdPullRules = &cobra.Command{
 	Use:   "pull-rules",
 	Short: "Pull all relevant rules from firebase collections",
 	Run: func(cmd *cobra.Command, args []string) {
-		devicePolicies, err := getDevicePolicies()
+		serverData, err := getServerData()
 		if err == nil {
-			for key, value := range devicePolicies {
-				log.Println(key, value)
-			}
+			spew.Dump(serverData)
 		}
 	},
 }
 
-var iptables = &cobra.Command{
+var iptablesFollow bool
+
+var cmdIptables = &cobra.Command{
 	Use:   "iptables",
 	Short: "Generate IPTables rules for this router",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -94,22 +94,26 @@ var iptables = &cobra.Command{
 		if err != nil {
 			log.Fatal("error parsing dns data\n", err)
 		}
-		log.Println("Downloading policies...")
-		devicePolicies, err := getDevicePolicies()
+		log.Println("Downloading server data...")
+		serverData, err := getServerData()
 		if err != nil {
 			log.Fatal("error downloading policies\n", err)
 		}
-		tailAndParseDNS(leaseDict, dnsMap, devicePolicies, args[0])
+		implementIPTablesRules(leaseDict, serverData, dnsMap)
+		if iptablesFollow {
+			tailAndParseDNS(leaseDict, serverData, dnsMap, args[0])
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(parseLeases)
-	rootCmd.AddCommand(tailDNS)
-	rootCmd.AddCommand(parseDNS)
-	rootCmd.AddCommand(pullRules)
-	rootCmd.AddCommand(iptables)
-	rootCmd.Execute()
+	cmdIptables.Flags().BoolVarP(&iptablesFollow, "follow", "f", false, "whether to tail the output or not")
+	rootCmd.AddCommand(cmdParseLeases)
+	rootCmd.AddCommand(cmdTailDNS)
+	rootCmd.AddCommand(cmdParseDNS)
+	rootCmd.AddCommand(cmdPullRules)
+	rootCmd.AddCommand(cmdIptables)
 }
 func main() {
+	rootCmd.Execute()
 }

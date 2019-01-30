@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+
 	"os"
 	"regexp"
 	"strings"
@@ -12,8 +13,8 @@ import (
 	"github.com/hpcloud/tail"
 )
 
-// DnsMap is a thing
-type DnsMap map[string]map[string]bool
+// DNSMap is a thing that keeps track of name-> ip mapping
+type DNSMap map[string]map[string]bool
 
 func parseLog(s string) (string, string, error) {
 	splitstr := strings.Split(s, ": ")
@@ -38,7 +39,7 @@ func parseLog(s string) (string, string, error) {
 	return "", "", nil
 }
 
-func readAndParseDNS(filename string) (DnsMap, error) {
+func readAndParseDNS(filename string) (DNSMap, error) {
 	g, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
@@ -46,7 +47,7 @@ func readAndParseDNS(filename string) (DnsMap, error) {
 	}
 
 	s := bufio.NewScanner(g)
-	output := make(DnsMap)
+	output := make(DNSMap)
 	for s.Scan() {
 		logLine := s.Text()
 		key, value, err := parseLog(logLine)
@@ -64,21 +65,11 @@ func readAndParseDNS(filename string) (DnsMap, error) {
 	return output, nil
 }
 
-func implementIPTableRules(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePolicyMap) {
-	log.Println("Generating iptables rules...")
-	whitelist := generateWhitelist(dnsMap, leaseDict, devicePolicies)
-	rules := makeIPTablesRules(whitelist)
-	for _, rule := range rules {
-		fmt.Println(rule)
-	}
-	executeBatch(rules)
-	log.Println("rules updated")
-}
-
-func tailAndParseDNS(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePolicyMap, filename string) {
-	implementIPTableRules(leaseDict, dnsMap, devicePolicies)
-
+func tailAndParseDNS(leaseDict LeaseDict, serverData ServerData, dnsMap DNSMap, filename string) {
 	t, err := tail.TailFile(filename, tail.Config{Follow: true, Location: &tail.SeekInfo{Offset: 0, Whence: os.SEEK_END}})
+	siteCommands := generateSiteChains(serverData, dnsMap)
+	siteCommandLength := len(siteCommands)
+	log.Println("siteCommands", siteCommandLength)
 	if err != nil {
 		log.Fatalf("Cannot access log file %s\n", filename)
 	}
@@ -95,8 +86,15 @@ func tailAndParseDNS(leaseDict LeaseDict, dnsMap DnsMap, devicePolicies DevicePo
 			}
 			_, ok = dnsMap[key][value]
 			if !ok {
+				// TODO: Debounce
+				log.Printf("Adding value for %s: %s\n", key, value)
 				dnsMap[key][value] = true
-				implementIPTableRules(leaseDict, dnsMap, devicePolicies)
+				siteCommands = generateSiteChains(serverData, dnsMap)
+				if len(siteCommands) != siteCommandLength {
+					siteCommandLength = len(siteCommands)
+					log.Println("added command siteCommands", siteCommandLength)
+					implementIPTablesRules(leaseDict, serverData, dnsMap)
+				}
 			}
 		}
 	}

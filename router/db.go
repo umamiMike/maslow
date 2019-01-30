@@ -53,29 +53,52 @@ func (h *host) add(collectionName string) error {
 	return nil
 }
 
-type devicePolicy struct {
-	Mac     string
-	Regexes []string
+// DevicePolicyData is all data associated with a given device
+type DevicePolicyData struct {
+	DefaultPolicyID   string
+	TemporaryPolicyID string
+	EndTime           time.Time
+	Name              string
 }
 
-type DevicePolicyMap map[string][]string
+// PolicyData is all server data associated with a policy
+type PolicyData struct {
+	Name  string
+	Sites []string
+}
 
-func getDevicePolicies() (DevicePolicyMap, error) {
-	output := make(map[string][]string)
-	//TODO: move out to own function
+// SiteData is all server data associated with a server
+type SiteData struct {
+	Name      string
+	RegexList []string
+}
+
+// ServerData provides policy and site information to the system
+type ServerData struct {
+	Devices  map[string]DevicePolicyData // {0a:22:21:af:09:33: {DefaultPolicyId: 'messaging', TemporaryPolicyId: '__open__', timeout: 282871712}}
+	Policies map[string]PolicyData       // {sdfkjasfh89212he182: {name: "messaging", sites: [whatsapp, hangouts, imessage]}
+	Sites    map[string]SiteData         // {sfudfuaues881: {name: whatsapp, "regexList": ['www\.whatsapp\.com', 'wa-static\d.whatsapp\.com...]}
+}
+
+// NEW
+func getServerData() (ServerData, error) {
+	//TODO: move out to own function ---------------------
 	ctx := context.Background()
 	opt := option.WithCredentialsFile(os.Getenv("SECRET_FILE"))
 	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
-		return nil, err
+		return ServerData{}, err
 	}
 	client, err := app.Firestore(ctx)
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		return ServerData{}, err
 	}
 	defer client.Close()
+	//TODO: move out to own function ---------------------
+
+	devices := make(map[string]DevicePolicyData)
 	iter := client.Collection("devices").Documents(ctx)
 	defer iter.Stop()
 	for {
@@ -86,45 +109,60 @@ func getDevicePolicies() (DevicePolicyMap, error) {
 		if err != nil {
 			// TODO: Handle error.
 		}
-		policyID := getPolicyID(ctx, deviceDoc, client)
-		data := deviceDoc.Data()
-		macAddress := fmt.Sprint(data["mac"])
-
-		if policyID != "" {
-			policyPath := "policies/" + fmt.Sprint(policyID)
-			policy, err := client.Doc(policyPath).Get(ctx)
-			if err != nil {
-				log.Fatal("could not find policy...")
-				break
-			}
-			if policy.Data()["name"] == open {
-				output[macAddress] = append(output[macAddress], "*")
-				continue
-			}
-			siteIDs := convertToSlice(policy.Data()["siteIds"])
-			for _, siteID := range siteIDs {
-				siteIDPath := "sites/" + fmt.Sprint(siteID)
-				site, err := client.Doc(siteIDPath).Get(ctx)
-				if err != nil {
-					log.Fatal("could not find site...")
-					break
-				}
-				newAddresses := convertToSlice(site.Data()["addresses"])
-				output[macAddress] = append(output[macAddress], newAddresses...)
-			}
-		}
+		devicePolicyData := getDevicePolicyData(ctx, deviceDoc, client)
+		deviceData := deviceDoc.Data()
+		macAddress := fmt.Sprint(deviceData["mac"])
+		devices[macAddress] = devicePolicyData
 	}
-	return output, nil
+
+	policies := make(map[string]PolicyData)
+	iter = client.Collection("policies").Documents(ctx)
+	defer iter.Stop()
+	for {
+		policyDoc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			// TODO: Handle error.
+		}
+		policyData := policyDoc.Data()
+		policyID := getIDFromDoc(policyDoc)
+		if policyData["name"] == open {
+			policies[policyID] = PolicyData{Name: open, Sites: nil}
+			continue
+		}
+		siteIDs := convertToSlice(policyData["siteIds"])
+		policies[policyID] = PolicyData{Name: fmt.Sprint(policyData["name"]), Sites: siteIDs}
+	}
+
+	sites := make(map[string]SiteData)
+	iter = client.Collection("sites").Documents(ctx)
+	defer iter.Stop()
+	for {
+		siteDoc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			// TODO: Handle error.
+		}
+		siteID := getIDFromDoc(siteDoc)
+		siteData := siteDoc.Data()
+		newAddresses := convertToSlice(siteData["addresses"])
+		sites[siteID] = SiteData{Name: fmt.Sprint(siteData["name"]), RegexList: newAddresses}
+	}
+	return ServerData{Sites: sites, Devices: devices, Policies: policies}, nil
 }
 
-// if there is a temporaryPolicy
-// policyID should equal the temporary policyID instead
-func getPolicyID(ctx context.Context, deviceDoc *firestore.DocumentSnapshot, client *firestore.Client) string {
-	data := deviceDoc.Data()
-	policyID := ""
-	if data["defaultPolicyId"] != nil {
-		policyID = fmt.Sprint(data["defaultPolicyId"])
+// Fetch the policy information for a specific device, examining endtime of temporaryPolicies
+func getDevicePolicyData(ctx context.Context, deviceDoc *firestore.DocumentSnapshot, client *firestore.Client) DevicePolicyData {
+	deviceData := deviceDoc.Data()
+	output := DevicePolicyData{DefaultPolicyID: "", TemporaryPolicyID: "", EndTime: time.Time{}, Name: ""}
+	if deviceData["defaultPolicyId"] != nil {
+		output.DefaultPolicyID = fmt.Sprint(deviceData["defaultPolicyId"])
 	}
+	output.Name = fmt.Sprint(deviceData["name"])
 
 	temporaryPolicyCollection := client.Collection("temporaryPolicies")
 	deviceID := getIDFromDoc(deviceDoc)
@@ -137,7 +175,7 @@ func getPolicyID(ctx context.Context, deviceDoc *firestore.DocumentSnapshot, cli
 			break
 		}
 		if err != nil {
-			fmt.Println("Error reading data", err)
+			fmt.Println("Error reading deviceData", err)
 		}
 		duration, err := strconv.Atoi(fmt.Sprint(temporaryPolicyDoc.Data()["duration"]))
 		if err != nil {
@@ -152,13 +190,12 @@ func getPolicyID(ctx context.Context, deviceDoc *firestore.DocumentSnapshot, cli
 		}
 
 		endTime := startTime.Add(time.Duration(duration) * time.Second)
-		fmt.Println("endTime", endTime, "startTime", startTime)
 		if endTime.After(time.Now()) {
-			policyID = fmt.Sprint(temporaryPolicyDoc.Data()["policyId"])
-			fmt.Println("Override policy found:", policyID)
+			output.TemporaryPolicyID = fmt.Sprint(temporaryPolicyDoc.Data()["policyId"])
+			output.EndTime = endTime
 		}
 	}
-	return policyID
+	return output
 }
 
 func getIDFromDoc(doc *firestore.DocumentSnapshot) string {
