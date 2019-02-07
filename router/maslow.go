@@ -44,7 +44,7 @@ var parseDNS = &cobra.Command{
 			os.Exit(1)
 		}
 		dnsMap, err := readAndParseDNS(args[0])
-		if err == nil {
+		if err == nil { //if there is an error print to log
 			log.Println(dnsMap)
 		}
 	},
