@@ -27,10 +27,10 @@ func TestParseLog(t *testing.T) {
 	//returns correctly formatted data
 }
 
-func TestLine2(t *testing.T) {
+func TestParseLog2(t *testing.T) {
 
 	line := `Dec 31 16:01:45 dnsmasq[1301]: reply 2.pool.ntp.org is 45.127.112.2`
-	key, val, err := parseLog(line2)
+	key, val, err := parseLog(line)
 	if err != nil {
 		t.Errorf("key and val should be should dns , and val should be ip")
 	}
