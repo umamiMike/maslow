@@ -17,6 +17,3 @@ deploy-wrt: build-wrt
 clean: 
 	@echo removing build directory
 	@rm -rf ./builds/
-create-build-dir: 
-	@echo creating build directory 
-	mkdir ./builds
