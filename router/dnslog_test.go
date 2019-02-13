@@ -7,7 +7,6 @@ import (
 )
 
 var line1 = `Dec 31 16:01:44 dnsmasq[1301]: reading /tmp/resolv.dnsmasq `
-var line2 = `Dec 31 16:01:45 dnsmasq[1301]: reply 2.pool.ntp.org is 45.127.112.2`
 var mockLog = "../test/logs/dnsmasq.log"
 
 //testing parseLog used in the readAndParseDns fn
@@ -30,15 +29,13 @@ func TestParseLog(t *testing.T) {
 
 func TestLine2(t *testing.T) {
 
+	line := `Dec 31 16:01:45 dnsmasq[1301]: reply 2.pool.ntp.org is 45.127.112.2`
 	key, val, err := parseLog(line2)
 	if err != nil {
 		t.Errorf("key and val should be should dns , and val should be ip")
 	}
 
-	if key != "2.pool.ntp.org" {
-		t.Errorf("key should be dns entry")
-	}
-
+	assert.Equal(t, key, "2.pool.ntp.org", "key should be a dns entry")
 	if val != "45.127.112.2" {
 		t.Errorf("val should be an ip address")
 	}
