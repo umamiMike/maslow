@@ -17,3 +17,13 @@ deploy-wrt: build-wrt
 clean: 
 	@echo removing build directory
 	@rm -rf ./builds/
+
+test: 
+	go test
+
+test-coverage:
+	 go test -coverprofile=coverage.out
+	 go tool cover -func=coverage.out
+	 go tool cover -html=coverage.out
+	 rm coverage.out
+
