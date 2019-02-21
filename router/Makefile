@@ -26,4 +26,6 @@ test-coverage:
 	 go tool cover -func=coverage.out
 	 go tool cover -html=coverage.out
 	 rm coverage.out
+benchmark:
+	go test -bench=.
 
