@@ -40,19 +40,9 @@ that they are spending their time wisely.
 ## Set up crontab
 
 ```
-echo '* * * * * root SSL_CERT_DIR=/opt/etc/ssl/certs SECRET_FILE=/tmp/root/maslow-2de90-firebase-adminsdk-10ing-d37ed58f69.json /tmp/root/router_service iptables /tmp/dnsmasq.log /tmp/dnsmasq.leases' > /tmp/cron.d/maslow-policy
-echo '30 * * * * root SSL_CERT_DIR=/opt/etc/ssl/certs SECRET_FILE=/tmp/root/maslow-2de90-firebase-adminsdk-10ing-d37ed58f69.json /tmp/root/router_service parse-leases /tmp/dnsmasq.leases' > /tmp/cron.d/maslow-devices
+echo '* * * * * root SSL_CERT_DIR=/opt/etc/ssl/certs SECRET_FILE=/tmp/root/maslow-service-credentials.json /tmp/root/router_service iptables /tmp/dnsmasq.log /tmp/dnsmasq.leases' > /tmp/cron.d/maslow-policy
+echo '30 * * * * root SSL_CERT_DIR=/opt/etc/ssl/certs SECRET_FILE=/tmp/root/maslow-service-credentials.json /tmp/root/router_service parse-leases /tmp/dnsmasq.leases' > /tmp/cron.d/maslow-devices
 stopservice crond && startservice crond
-
-```
-
-```
-opkg install ca-certificates
-cat > .bash_profile << EOF
-export SECRET_FILE=/tmp/root/secrets/maslow-service-credentials.json
-export SSL_CERT_DIR=/opt/etc/ssl/certs
-EOF
-root@speck:~# ./router_service parse-leases /tmp/dnsmasq.leases
 ```
 
 ```
@@ -60,6 +50,17 @@ umount /dev/sda1
 mount /dev/sda1 /opt
 curl -Ok https://raw.githubusercontent.com/psbanka/configuration-files/master/.tmux.conf
 tmux
+opkg install ca-certificates
+
+cat > .bash_profile << EOF
+export SECRET_FILE=/tmp/root/maslow-service-credentials.json
+export SSL_CERT_DIR=/opt/etc/ssl/certs
+EOF
+bash
+```
+
+```
+root@speck:~# ./router_service parse-leases /tmp/dnsmasq.leases
 ```
 
 ```
