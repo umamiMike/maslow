@@ -4,10 +4,17 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
+
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/hpcloud/tail"
 )
+
+// DNSMap is a thing that keeps track of name-> ip mapping
+type DNSMap map[string]map[string]bool
 
 func parseLog(s string) (string, string, error) {
 	splitstr := strings.Split(s, ": ")
@@ -36,7 +43,7 @@ func parseLog(s string) (string, string, error) {
 	return "", "", nil
 }
 
-func readAndParseDNS(filename string) (map[string][]string, error) {
+func readAndParseDNS(filename string) (DNSMap, error) {
 	g, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("error opening file: %v\n", err)
@@ -44,18 +51,55 @@ func readAndParseDNS(filename string) (map[string][]string, error) {
 	}
 
 	s := bufio.NewScanner(g)
-	output := make(map[string][]string)
+	output := make(DNSMap)
 	for s.Scan() {
 		logLine := s.Text()
 		key, value, err := parseLog(logLine)
-		if err != nil {
-			//we dont care
-			continue
-		}
-		if key != "" {
-			output[key] = append(output[key], value)
+		if err == nil {
+			if key != "" {
+				_, ok := output[key]
+				if !ok {
+					output[key] = make(map[string]bool)
+				}
+				output[key][value] = true
+			}
 		}
 	}
 	g.Close()
 	return output, nil
+}
+
+func tailAndParseDNS(leaseDict LeaseDict, serverData ServerData, dnsMap DNSMap, filename string) {
+	t, err := tail.TailFile(filename, tail.Config{Follow: true, Location: &tail.SeekInfo{Offset: 0, Whence: os.SEEK_END}})
+	siteCommands := generateSiteChains(serverData, dnsMap)
+	siteCommandLength := len(siteCommands)
+	log.Println("siteCommands", siteCommandLength)
+	if err != nil {
+		log.Fatalf("Cannot access log file %s\n", filename)
+	}
+
+	for line := range t.Lines {
+		key, value, err := parseLog(line.Text)
+		if err != nil {
+			continue
+		}
+		if key != "" {
+			_, ok := dnsMap[key]
+			if !ok {
+				dnsMap[key] = make(map[string]bool)
+			}
+			_, ok = dnsMap[key][value]
+			if !ok {
+				// TODO: Debounce
+				log.Printf("Adding value for %s: %s\n", key, value)
+				dnsMap[key][value] = true
+				siteCommands = generateSiteChains(serverData, dnsMap)
+				if len(siteCommands) != siteCommandLength {
+					siteCommandLength = len(siteCommands)
+					log.Println("added command siteCommands", siteCommandLength)
+					implementIPTablesRules(leaseDict, serverData, dnsMap)
+				}
+			}
+		}
+	}
 }
