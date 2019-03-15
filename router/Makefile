@@ -3,7 +3,6 @@
 BINNAME=router_service
 EXTLDFLAGS=-static
 LDFLAGS=-linkmode external -extldflags "$(EXTLDFLAGS)"
-
 build-dev:
 	@rm -f ./builds/dev
 	go build -o ./builds/dev
@@ -18,6 +17,16 @@ deploy-wrt: build-wrt
 clean:
 	@echo removing build directory
 	@rm -rf ./builds/
+test: 
+	go test
+test-coverage:
+	 go test -coverprofile=coverage.out
+	 go tool cover -func=coverage.out
+	 go tool cover -html=coverage.out
+	 rm coverage.out
+benchmark:
+	go test -bench=.
+
 create-build-dir:
 	@echo creating build directory
 	mkdir ./builds

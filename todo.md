@@ -21,6 +21,17 @@
 # Router:
 
 ## top priority:
+- [ ] test dnslog.go
+- [ ] test db.go
+- [ ] test dnsmasq.go
+- [ ] test iptables.go
+- [ ] test utils.go
+
+- [ ]  refactor firebase connection establishment from db.go get()
+- [ ]  When new devices are found, create them only if they do not exist already
+- [ ] run iptables periodically on router (with crontab)
+- [ ] run push-arp on router (with crontab)
+- [ ] Update installation instructions for setting up crontab
 
 [X] - Get "open" rules working
 [ ] - Talk to firebase less: leave a persistent connection to firebase up and write files to filesystem when there are changes

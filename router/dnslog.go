@@ -18,18 +18,22 @@ type DNSMap map[string]map[string]bool
 
 func parseLog(s string) (string, string, error) {
 	splitstr := strings.Split(s, ": ")
+
 	if len(splitstr) != 2 {
 		return "", "", errors.New("Unreadable line")
 	}
+
 	dataStr := splitstr[1]
 	splitStr2 := strings.Split(dataStr, " ")
 	if splitStr2[0] != "reply" {
 		return "", "", nil
 	}
+
 	// TODO: Deal properly with CNAMEs?
 	if splitStr2[3] == "<CNAME>" {
 		return "", "", nil
 	}
+
 	name := strings.Replace(splitStr2[1], "\"", "", -1)
 	iPAddress := splitStr2[3]
 	r, _ := regexp.Compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")
