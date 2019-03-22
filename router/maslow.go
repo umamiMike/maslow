@@ -106,6 +106,14 @@ var cmdIptables = &cobra.Command{
 	},
 }
 
+var cmdListen = &cobra.Command{
+	Use:   "listen",
+	Short: "Listen to messages from the server and do stuff",
+	Run: func(cmd *cobra.Command, args []string) {
+		subscribeToUpdates()
+	},
+}
+
 func init() {
 	cmdIptables.Flags().BoolVarP(&iptablesFollow, "follow", "f", false, "whether to tail the output or not")
 	rootCmd.AddCommand(cmdParseLeases)
@@ -113,6 +121,7 @@ func init() {
 	rootCmd.AddCommand(cmdParseDNS)
 	rootCmd.AddCommand(cmdPullRules)
 	rootCmd.AddCommand(cmdIptables)
+	rootCmd.AddCommand(cmdListen)
 }
 func main() {
 	rootCmd.Execute()

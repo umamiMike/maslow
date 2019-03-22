@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
+
 	firestore "cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"golang.org/x/net/context"
@@ -202,4 +204,26 @@ func getIDFromDoc(doc *firestore.DocumentSnapshot) string {
 	pathHunks := strings.Split(fmt.Sprintf(doc.Ref.Path), "/")
 	docID := pathHunks[len(pathHunks)-1]
 	return docID
+}
+
+func subscribeToUpdates() {
+	ctx := context.Background()
+	opt := option.WithCredentialsFile(os.Getenv("SECRET_FILE"))
+	app, err := firebase.NewApp(ctx, config, opt)
+	if err != nil {
+		fmt.Println("Can't start the app", err)
+	}
+
+	messaging, err2 := app.Messaging(ctx)
+
+	if err2 != nil {
+		fmt.Println("can't start messaging", err)
+	}
+	tokens := []string{"544833869916"}
+	tmr, err3 := messaging.SubscribeToTopic(ctx, tokens, "policy-change")
+	if err3 != nil {
+		fmt.Println("can't subscribe to topic", err)
+	}
+	spew.Dump(tmr)
+	// fmt.Println(tmr)
 }
